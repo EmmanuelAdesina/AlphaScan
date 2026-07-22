@@ -68,7 +68,7 @@ async def health_check(request: Request):
 
 @app.get("/status", response_model=StatusResponse, tags=["status"])
 @limiter.limit(API_RATE_LIMIT)
-async def get_status(engine=Depends(get_engine)):
+async def get_status(request: Request, engine=Depends(get_engine)):
     """Get current engine status."""
     status = engine.get_status()
     return StatusResponse(**status)
@@ -76,7 +76,7 @@ async def get_status(engine=Depends(get_engine)):
 
 @app.get("/config", tags=["status"])
 @limiter.limit("10/minute")
-async def get_config():
+async def get_config(request: Request):
     """Get current configuration (safe summary)."""
     return get_config_summary()
 
@@ -85,7 +85,7 @@ async def get_config():
 
 @app.post("/scan/start", response_model=ScanResponse, tags=["scan"])
 @limiter.limit("5/minute")
-async def start_scan(request: ScanRequest, engine=Depends(get_engine)):
+async def start_scan(request: Request, scan_request: ScanRequest, engine=Depends(get_engine)):
     """Start a scan (force immediate scan)."""
     if engine.state.running:
         return ScanResponse(
@@ -110,7 +110,7 @@ async def start_scan(request: ScanRequest, engine=Depends(get_engine)):
 
 @app.post("/scan/stop", response_model=ScanResponse, tags=["scan"])
 @limiter.limit("10/minute")
-async def stop_scan(engine=Depends(get_engine)):
+async def stop_scan(request: Request, engine=Depends(get_engine)):
     """Stop the running scan cycle."""
     if not engine.state.running:
         return ScanResponse(
@@ -127,16 +127,16 @@ async def stop_scan(engine=Depends(get_engine)):
 
 @app.get("/scan/start", response_model=ScanResponse, tags=["scan"])
 @limiter.limit("5/minute")
-async def start_scan_get(engine=Depends(get_engine)):
+async def start_scan_get(request: Request, engine=Depends(get_engine)):
     """Start a scan (GET method, same as POST)."""
-    return await start_scan(ScanRequest(), engine)
+    return await start_scan(request, ScanRequest(), engine)
 
 
 # ── Results Endpoints ─────────────────────────────────────────────────────
 
 @app.get("/results", response_model=ResultsResponse, tags=["results"])
 @limiter.limit(API_RATE_LIMIT)
-async def get_results(engine=Depends(get_engine)):
+async def get_results(request: Request, engine=Depends(get_engine)):
     """Get scan results."""
     results = engine.get_results()
     return ResultsResponse(
@@ -149,7 +149,7 @@ async def get_results(engine=Depends(get_engine)):
 
 @app.get("/keys", response_model=KeyResponse, tags=["keys"])
 @limiter.limit(API_RATE_LIMIT)
-async def get_keys(engine=Depends(get_engine)):
+async def get_keys(request: Request, engine=Depends(get_engine)):
     """Get all discovered keys (masked for security)."""
     keys = engine.get_keys()
     return KeyResponse(
@@ -160,7 +160,7 @@ async def get_keys(engine=Depends(get_engine)):
 
 @app.get("/keys/{key_type}", response_model=KeyResponse, tags=["keys"])
 @limiter.limit(API_RATE_LIMIT)
-async def get_keys_by_type(key_type: str, engine=Depends(get_engine)):
+async def get_keys_by_type(request: Request, key_type: str, engine=Depends(get_engine)):
     """Get keys filtered by type."""
     keys = engine.get_keys()
     filtered = [k for k in keys if k.get("type") == key_type]
@@ -172,7 +172,7 @@ async def get_keys_by_type(key_type: str, engine=Depends(get_engine)):
 
 @app.get("/keys/rank/{rank}", response_model=KeyResponse, tags=["keys"])
 @limiter.limit(API_RATE_LIMIT)
-async def get_keys_by_rank(rank: int, engine=Depends(get_engine)):
+async def get_keys_by_rank(request: Request, rank: int, engine=Depends(get_engine)):
     """Get keys filtered by rank (0-10)."""
     keys = engine.get_keys()
     filtered = [k for k in keys if k.get("rank") == rank]
@@ -186,7 +186,7 @@ async def get_keys_by_rank(rank: int, engine=Depends(get_engine)):
 
 @app.get("/verification/stats", tags=["verification"])
 @limiter.limit("10/minute")
-async def get_verification_stats(engine=Depends(get_engine)):
+async def get_verification_stats(request: Request, engine=Depends(get_engine)):
     """Get verification statistics."""
     return engine.verifier.get_stats()
 
@@ -196,16 +196,17 @@ async def get_verification_stats(engine=Depends(get_engine)):
 @app.post("/self-improve", response_model=ImprovementResponse, tags=["self-improvement"])
 @limiter.limit("10/minute")
 async def trigger_self_improvement(
-    request: ImprovementRequest,
+    request: Request,
+    improvement_request: ImprovementRequest,
     engine=Depends(get_engine),
 ):
     """Trigger a self-improvement cycle."""
     try:
-        success, message = engine.improver.trigger_improvement(request.description)
+        success, message = engine.improver.trigger_improvement(improvement_request.description)
         return ImprovementResponse(
             success=success,
             message=message,
-            code_generated=request.description,
+            code_generated=improvement_request.description,
             filename=message,
         )
     except Exception as e:
@@ -218,7 +219,7 @@ async def trigger_self_improvement(
 
 @app.get("/self-improve/metrics", response_model=MetricsResponse, tags=["self-improvement"])
 @limiter.limit("10/minute")
-async def get_improvement_metrics(engine=Depends(get_engine)):
+async def get_improvement_metrics(request: Request, engine=Depends(get_engine)):
     """Get self-improvement metrics."""
     metrics = engine.improver.get_metrics()
     return MetricsResponse(**metrics)
@@ -228,7 +229,7 @@ async def get_improvement_metrics(engine=Depends(get_engine)):
 
 @app.get("/scanners", tags=["scanners"])
 @limiter.limit("10/minute")
-async def get_scanners(engine=Depends(get_engine)):
+async def get_scanners(request: Request, engine=Depends(get_engine)):
     """Get list of all scanners and their status."""
     return engine.scanner_manager.get_scanner_stats()
 
@@ -237,7 +238,7 @@ async def get_scanners(engine=Depends(get_engine)):
 
 @app.get("/autonomous/status", tags=["autonomous"])
 @limiter.limit("10/minute")
-async def get_autonomous_status(engine=Depends(get_engine)):
+async def get_autonomous_status(request: Request, engine=Depends(get_engine)):
     """Get autonomous system status."""
     return {
         "autonomous_mode": engine.state.running,
@@ -251,7 +252,7 @@ async def get_autonomous_status(engine=Depends(get_engine)):
 
 @app.get("/autonomous/decisions", tags=["autonomous"])
 @limiter.limit("10/minute")
-async def get_decisions(engine=Depends(get_engine)):
+async def get_decisions(request: Request, engine=Depends(get_engine)):
     """Get autonomous decision log."""
     return engine.decision_logger.get_decisions()
 
@@ -260,7 +261,7 @@ async def get_decisions(engine=Depends(get_engine)):
 
 @app.post("/discord/command", tags=["discord"])
 @limiter.limit("10/minute")
-async def discord_command(command: str, engine=Depends(get_engine)):
+async def discord_command(request: Request, command: str, engine=Depends(get_engine)):
     """
     Process Discord commands.
     Commands: !status, !approve-pivot, !deny-pivot, !approve-feature,
