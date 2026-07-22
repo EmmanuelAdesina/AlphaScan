@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  apis:
+    build: .
+    container_name: apis
+    ports:
+      - "8000:8000"
+    environment:
+      - CENSYS_API_ID=${CENSYS_API_ID}
+      - CENSYS_API_SECRET=${CENSYS_API_SECRET}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - SCAN_INTERVAL=${SCAN_INTERVAL:-300}
+      - MAX_KEYS_PER_REPORT=${MAX_KEYS_PER_REPORT:-50}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  # Optional: Redis for caching
+  redis:
+    image: redis:alpine
+    container_name: apis-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

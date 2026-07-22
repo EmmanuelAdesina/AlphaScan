@@ -1,0 +1,9 @@
+{
+  "cycle": 0,
+  "total_keys_found": 0,
+  "total_scans": 0,
+  "last_scan_time": null,
+  "last_scan_duration": 0.0,
+  "discovered_key_types": [],
+  "scanner_stats": []
+}
