@@ -52,12 +52,17 @@ async def rate_limit_handler(request, exc):
 
 # ── Health Check ──────────────────────────────────────────────────────────
 
+from fastapi import Request
+
 @app.get("/health", tags=["health"])
 @limiter.limit("10/minute")
-async def health_check():
+async def health_check(request: Request):
     """Health check endpoint."""
-    return {"status": "healthy", "service": "AlphaScan", "version": "0.5.0"}
-
+    return {
+        "status": "healthy",
+        "service": "AlphaScan",
+        "version": "0.5.0"
+    }
 
 # ── Status Endpoints ──────────────────────────────────────────────────────
 
