@@ -1,5 +1,5 @@
 """
-FastAPI routes for APIS.
+FastAPI routes for AlphaScan v0.5.
 Defines all REST API endpoints for the system.
 """
 import logging
@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="APIS - Autonomous Parallel Intelligence Scanner",
-    description="AI-driven system that scans the internet for exposed API keys",
-    version="0.1.0",
+    title="AlphaScan v0.5 - Secret Intelligence System",
+    description="AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys",
+    version="0.5.0",
 )
 
 # CORS middleware
@@ -56,7 +56,7 @@ async def rate_limit_handler(request, exc):
 @limiter.limit("10/minute")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "service": "APIS", "version": "0.1.0"}
+    return {"status": "healthy", "service": "AlphaScan", "version": "0.5.0"}
 
 
 # ── Status Endpoints ──────────────────────────────────────────────────────
@@ -165,6 +165,27 @@ async def get_keys_by_type(key_type: str, engine=Depends(get_engine)):
     )
 
 
+@app.get("/keys/rank/{rank}", response_model=KeyResponse, tags=["keys"])
+@limiter.limit(API_RATE_LIMIT)
+async def get_keys_by_rank(rank: int, engine=Depends(get_engine)):
+    """Get keys filtered by rank (0-10)."""
+    keys = engine.get_keys()
+    filtered = [k for k in keys if k.get("rank") == rank]
+    return KeyResponse(
+        total=len(filtered),
+        keys=[KeyInfo(**k) for k in filtered],
+    )
+
+
+# ── Verification Endpoints ──────────────────────────────────────────────────
+
+@app.get("/verification/stats", tags=["verification"])
+@limiter.limit("10/minute")
+async def get_verification_stats(engine=Depends(get_engine)):
+    """Get verification statistics."""
+    return engine.verifier.get_stats()
+
+
 # ── Self-Improvement Endpoints ────────────────────────────────────────────
 
 @app.post("/self-improve", response_model=ImprovementResponse, tags=["self-improvement"])
@@ -207,29 +228,39 @@ async def get_scanners(engine=Depends(get_engine)):
     return engine.scanner_manager.get_scanner_stats()
 
 
-# ── Discord Command Endpoints ──────────────────────────────────────────────
+# ── Autonomous Endpoints ──────────────────────────────────────────────────
+
+@app.get("/autonomous/status", tags=["autonomous"])
+@limiter.limit("10/minute")
+async def get_autonomous_status(engine=Depends(get_engine)):
+    """Get autonomous system status."""
+    return {
+        "autonomous_mode": engine.state.running,
+        "autonomous_decisions": engine.state.autonomous_decisions,
+        "current_strategy": engine.strategy_analyzer.get_current_strategy(),
+        "git_available": engine.git_manager.is_available(),
+        "pending_approvals": len(engine.decision_logger.get_pending_approvals()),
+        "missing_keys": engine.env_manager.detect_key_needs(),
+    }
+
+
+@app.get("/autonomous/decisions", tags=["autonomous"])
+@limiter.limit("10/minute")
+async def get_decisions(engine=Depends(get_engine)):
+    """Get autonomous decision log."""
+    return engine.decision_logger.get_decisions()
+
+
+# ── Discord Command Endpoints ─────────────────────────────────────────────
 
 @app.post("/discord/command", tags=["discord"])
 @limiter.limit("10/minute")
 async def discord_command(command: str, engine=Depends(get_engine)):
     """
     Process Discord commands.
-    Commands: !status, !scan, !improve, !config
+    Commands: !status, !approve-pivot, !deny-pivot, !approve-feature,
+    !deny-feature, !config, !restart, !push, !rollback, !logs, !help,
+    !provide-key, !improve, !scan
     """
-    command = command.strip().lower()
-
-    if command == "!status":
-        return {"response": engine.get_status()}
-    elif command == "!scan":
-        result = engine.force_scan()
-        return {"response": f"Scan completed: {result['keys_found']} keys found"}
-    elif command.startswith("!improve"):
-        desc = command.replace("!improve", "").strip()
-        if desc:
-            success, msg = engine.improver.trigger_improvement(desc)
-            return {"response": f"Improvement: {msg}"}
-        return {"response": "Usage: !improve <description>"}
-    elif command == "!config":
-        return {"response": get_config_summary()}
-    else:
-        return {"response": "Unknown command. Available: !status, !scan, !improve, !config"}
+    result = engine.process_command(command)
+    return {"success": result["success"], "message": result["message"]}

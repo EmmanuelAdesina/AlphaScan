@@ -1,5 +1,5 @@
 """
-Discord notification module for APIS.
+Discord notification module for AlphaScan v0.5.
 Sends status updates, key reports, and self-improvement alerts via Discord webhooks.
 """
 import logging
@@ -14,7 +14,8 @@ logger = logging.getLogger(__name__)
 class DiscordNotifier:
     """
     Sends notifications to Discord via webhook.
-    Handles status updates, key reports, and self-improvement alerts.
+    Handles status updates, key reports, self-improvement alerts,
+    and autonomous decision notifications.
     """
 
     def __init__(self, webhook_url: Optional[str] = None):
@@ -49,9 +50,9 @@ class DiscordNotifier:
                     new_scanner: Optional[str] = None) -> bool:
         """Send a status update message."""
         lines = [
-            "📡 **APIS Status**",
+            "📡 **AlphaScan v0.5 Status**",
             f"- Cycle #{cycle} completed in {duration:.1f}s",
-            f"- Found {keys_found} valid key(s)",
+            f"- Found {keys_found} verified key(s)",
         ]
         if new_scanner:
             lines.append(f"- New scanner added: \"{new_scanner}\" (auto-generated)")
@@ -62,7 +63,7 @@ class DiscordNotifier:
     def send_key_report(self, keys: List[Dict]) -> bool:
         """Send a report of found keys, categorized by type."""
         if not keys:
-            return self._send("🔑 APIS - No keys found in this cycle.")
+            return self._send("🔑 AlphaScan v0.5 - No keys found in this cycle.")
 
         # Group keys by type
         by_type: Dict[str, List[Dict]] = {}
@@ -88,8 +89,14 @@ class DiscordNotifier:
                 "color": 0x5865F2,
             })
 
-        summary = f"🔑 **APIS - API Keys Found**\n\n📊 Summary: {len(keys)} valid key(s)"
+        summary = f"🔑 **AlphaScan v0.5 - API Keys Found**\n\n📊 Summary: {len(keys)} valid key(s)"
         return self._send(summary, embeds)
+
+    def send_report(self, report: Dict) -> bool:
+        """Send a classified, ranked report from the DiscordReporter."""
+        content = report.get("content", "")
+        embeds = report.get("embeds", [])
+        return self._send(content, embeds)
 
     def send_new_key_type(self, key_type: str, sample: str,
                           confidence: float = 0.0) -> bool:
@@ -110,7 +117,7 @@ class DiscordNotifier:
 
     def send_error(self, error: str, context: str = "") -> bool:
         """Send an error notification."""
-        msg = f"❌ **APIS Error**\n- {error}"
+        msg = f"❌ **AlphaScan Error**\n- {error}"
         if context:
             msg += f"\n- Context: {context}"
         return self._send(msg)
@@ -128,6 +135,42 @@ class DiscordNotifier:
             f"Please provide guidance."
         )
         return self._send(msg)
+
+    def send_pivot_proposal(self, proposal: Dict) -> bool:
+        """Send a strategy pivot proposal to Discord."""
+        content = (
+            "🔄 **Strategy Pivot Proposal**\n"
+            f"- Current Strategy: {proposal.get('current_strategy', 'N/A')}\n"
+            f"- Proposed Strategy: {proposal.get('proposed_strategy', 'N/A')}\n"
+            f"- Expected ROI Improvement: {proposal.get('expected_roi_improvement', 0):.1%}\n"
+            f"- Confidence: {proposal.get('confidence', 0):.2f}\n"
+            "\n"
+            "Approve with `!approve-pivot` or deny with `!deny-pivot`"
+        )
+        embeds = [{
+            "title": "Strategy Pivot Proposal",
+            "description": proposal.get("reasoning", ""),
+            "color": 0xFFA500,
+        }]
+        return self._send(content, embeds)
+
+    def send_feature_proposal(self, proposal: Dict) -> bool:
+        """Send a feature proposal to Discord."""
+        content = (
+            "💡 **New Feature Proposal**\n"
+            f"- Feature: {proposal.get('feature', 'N/A')}\n"
+            f"- Description: {proposal.get('description', 'N/A')}\n"
+            f"- Confidence: {proposal.get('confidence', 0):.2f}\n"
+            f"- Estimated Impact: {proposal.get('estimated_impact', 'N/A')}\n"
+            "\n"
+            "Approve with `!approve-feature` or deny with `!deny-feature`"
+        )
+        embeds = [{
+            "title": "Feature Proposal",
+            "description": proposal.get("description", ""),
+            "color": 0x00CED1,
+        }]
+        return self._send(content, embeds)
 
 
 def _format_interval() -> str:

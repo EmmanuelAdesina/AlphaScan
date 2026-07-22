@@ -1,55 +1,70 @@
-# APIS - Autonomous Parallel Intelligence Scanner
+# AlphaScan v0.5 - Complete Secret Intelligence System
 
-**APIS** (Autonomous Parallel Intelligence Scanner) is an AI-driven system that continuously scans the internet for exposed API keys, classifies them by type, validates them, and reports findings via Discord. The system is fully autonomous with self-improvement capabilities, capable of writing its own code to add new features and improve existing ones.
+**AlphaScan** (Autonomous Parallel Intelligence Scanner) is an AI-driven system that continuously scans the internet for exposed API keys, SSH private keys, and cryptocurrency keys. It classifies, verifies, and reports all discovered secrets with a comprehensive 0-10 ranking system. The system is fully autonomous with self-improvement capabilities, capable of writing its own code, managing its environment, and pushing to GitHub.
 
-## 🚀 Features
+## 🚀 v0.5 New Features
 
-- **Multi-source scanning**: Censys, GitHub, port scanning, and service discovery
-- **AI-powered classification**: Uses Groq AI (with regex fallback) to identify key types
-- **Self-improvement**: Generates, validates, and deploys its own code
-- **Discord integration**: Real-time notifications and command support
-- **Dockerized**: Easy deployment with multi-stage Docker build
-- **Free-tier friendly**: Uses only free-tier external services
-- **Security-focused**: No full key logging, non-root Docker user, rate limiting
+### 🔐 Secret Intelligence System
+- **SSH Private Key Detection (Rank 0)** - Detects OpenSSH, RSA, DSA, EC private keys with MD5 fingerprint generation, encryption status detection, and permission context analysis
+- **Crypto Key Detection (Rank 1-6)** - Detects Ethereum/BSC private keys, Bitcoin WIF keys, Solana keys, BIP39 seed phrases, and exchange API keys with wallet balance checks via Etherscan (read-only)
+- **API Key Detection (Rank 7-10)** - Detects cloud provider keys (AWS, GCP, Azure), payment processors (Stripe, PayPal), AI providers (OpenAI, Claude), and development platform keys (GitHub, GitLab)
 
-## 📋 Requirements
+### 🧠 Smart Verification Pipeline
+Three-layer verification ensures only valid secrets are reported:
+1. **Format Validation** - Structure, length, pattern matching
+2. **Entropy Analysis** - Randomness measurement (Shannon entropy)
+3. **Context Analysis** - Production vs test environment, permission levels
 
-- Python 3.10+
-- API keys for: Censys, GitHub, Groq, Discord Webhook
+### 📊 Complete Ranking System (0-10)
+| Rank | Category | Examples |
+|------|----------|----------|
+| **0** | SSH Private Keys | OpenSSH, RSA, DSA, EC |
+| **1** | Crypto Exchange Keys | Binance, Coinbase, Kraken |
+| **2** | Wallet Private Keys | ETH, BTC, BSC, Seed Phrases |
+| **3** | Hot Wallet Keys | Exchange/project wallets |
+| **4** | DeFi Admin Keys | Multisig, Deployer keys |
+| **5** | RPC Provider Keys | Alchemy, Infura |
+| **6** | Smart Contract Keys | Deployer keys |
+| **7** | Cloud Provider Keys | AWS, GCP, Azure |
+| **8** | Payment Processors | Stripe, PayPal |
+| **9** | AI Provider Keys | OpenAI, Claude |
+| **10** | Dev Platform Keys | GitHub, GitLab |
+
+### 🤖 Autonomous System
+- **Environment Management** - Auto-detects missing API keys, requests them via Discord, updates .env file
+- **Strategy Analysis** - ROI-based pivoting between scanning sources
+- **Git Management** - Autonomous commit, push, sync, and rollback
+- **Command Handler** - Full Discord command system (!status, !scan, !config, !push, !rollback, !help, etc.)
+- **Decision Logging** - Complete audit trail of all autonomous decisions
+
+### 📡 New Scanners
+- **Pastebin Scanner** - Scans public pastes for secrets
+- **Telegram Scanner** - Scans public Telegram channels for secrets
+
+### 📋 Clean Discord Reports
+Classified, ranked, and prioritized reports with:
+- Summary statistics by rank group
+- Detailed key information (fingerprint, permissions, format, size)
+- Production environment detection
+- Wallet balance information (for crypto keys)
 
 ## 🛠️ Installation
 
 ### Option 1: Docker (Recommended)
-
 ```bash
-# Clone the repository
 git clone <repo-url>
-cd apis
-
-# Copy environment template
+cd AlphaScan
 cp .env.example .env
-
-# Edit .env with your API keys
-nano .env
-
-# Build and run with Docker Compose
+nano .env  # Fill in your API keys
 docker-compose up --build -d
-
-# Check health
 curl http://localhost:8000/health
 ```
 
 ### Option 2: Local Development
-
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Copy and configure environment
 cp .env.example .env
-# Edit .env with your credentials
-
-# Run the application
+nano .env
 python main.py
 ```
 
@@ -64,150 +79,148 @@ python main.py
 | `GITHUB_TOKEN` | Yes | GitHub Personal Access Token |
 | `GROQ_API_KEY` | Yes | Groq AI API Key |
 | `DISCORD_WEBHOOK_URL` | Yes | Discord Webhook URL |
-| `SCAN_INTERVAL` | No | Scan interval in seconds (default: 300) |
-| `MAX_KEYS_PER_REPORT` | No | Max keys per Discord report (default: 50) |
-| `DEBUG` | No | Enable debug mode (default: false) |
-| `LOG_LEVEL` | No | Logging level (default: INFO) |
+| `AUTONOMOUS_MODE` | No | Enable autonomous mode (default: true) |
+| `AUTO_PUSH_GITHUB` | No | Auto-push to GitHub (default: true) |
+| `ENABLE_SSH_DETECTION` | No | Enable SSH key detection (default: true) |
+| `ENABLE_CRYPTO_DETECTION` | No | Enable crypto key detection (default: true) |
+| `ENABLE_API_DETECTION` | No | Enable API key detection (default: true) |
+| `VERIFICATION_TIMEOUT` | No | Verification timeout in seconds (default: 5) |
+| `ETHERSCAN_API_KEY` | No | Etherscan API key for balance checks |
 
 ## 📡 API Endpoints
 
-### Status
+### Health & Status
 - `GET /health` - Health check
 - `GET /status` - Engine status
 - `GET /config` - Configuration summary
+- `GET /autonomous/status` - Autonomous system status
 
 ### Scanning
 - `POST /scan/start` - Start a scan
 - `POST /scan/stop` - Stop the scan cycle
 - `GET /scan/start` - Start scan (GET method)
 
-### Results
+### Results & Keys
 - `GET /results` - Get scan results
 - `GET /keys` - Get all discovered keys (masked)
 - `GET /keys/{key_type}` - Get keys by type
+- `GET /keys/rank/{rank}` - Get keys by rank (0-10)
+
+### Verification
+- `GET /verification/stats` - Verification statistics
 
 ### Self-Improvement
 - `POST /self-improve` - Trigger self-improvement
 - `GET /self-improve/metrics` - Get improvement metrics
 
-### Scanners
-- `GET /scanners` - List all scanners and status
+### Autonomous
+- `GET /autonomous/decisions` - Get decision log
 
 ### Discord Commands
-- `POST /discord/command` - Process Discord commands (!status, !scan, !improve, !config)
+- `POST /discord/command` - Process Discord commands
+
+## 🤖 Discord Commands
+
+| Command | Action |
+|---------|--------|
+| `!status` | Show current scan state, keys found, uptime |
+| `!approve-pivot` | Approve strategy pivot |
+| `!deny-pivot` | Reject strategy pivot |
+| `!approve-feature` | Approve new feature addition |
+| `!deny-feature` | Reject new feature addition |
+| `!config` | Show current configuration |
+| `!restart` | Restart the system |
+| `!push` | Force push to GitHub |
+| `!rollback [hash]` | Rollback last change |
+| `!logs` | Show recent logs |
+| `!help` | Show available commands |
+| `!provide-key <KEY> <value>` | Provide API key via Discord |
+| `!improve <description>` | Trigger self-improvement |
+| `!scan` | Force immediate scan |
 
 ## 🔑 Key Classification
 
-APIS can identify and classify the following key types:
+AlphaScan can identify and classify the following key types:
 
-| Type | Pattern | Description |
-|------|---------|-------------|
-| `openai` | `sk-...` | OpenAI API key |
-| `claude` | `sk-ant-...` | Anthropic/Claude API key |
-| `aws` | `AKIA...` | AWS Access Key ID |
-| `google` | `AIza...` | Google API key |
-| `github` | `ghp_...` | GitHub token |
-| `stripe_live` | `sk_live_...` | Stripe Live secret key |
-| `stripe_test` | `sk_test_...` | Stripe Test secret key |
-| `discord` | `xxx.xxx.xxx` | Discord bot token |
-| `slack` | `xoxb-...` | Slack token |
-| `mongodb` | `mongodb://...` | MongoDB connection string |
-| `postgresql` | `postgresql://...` | PostgreSQL connection string |
-| `mysql` | `mysql://...` | MySQL connection string |
-| `generic` | Various | Generic API key patterns |
+### SSH Keys (Rank 0)
+- OpenSSH Private Key
+- RSA Private Key
+- DSA Private Key
+- EC Private Key
+- SSH Public Keys (RSA, ECDSA, ED25519)
 
-## 🤖 Self-Improvement System
+### Crypto Keys (Rank 1-6)
+- Ethereum/BSC Private Keys
+- Bitcoin WIF Private Keys
+- Solana Private Keys
+- BIP39 Seed Phrases (12-24 words)
+- Exchange API Keys (Binance, Coinbase, Kraken)
+- RPC Provider Keys (Alchemy, Infura)
+- DeFi Admin Keys (Multisig, Deployer)
 
-APIS has a built-in self-improvement engine that can:
-
-1. **Analyze metrics**: Reviews scan results, detection rates, and missed keys
-2. **Generate code**: Writes Python code to add new features or improve existing ones
-3. **Validate code**: Syntax checking, import verification, and security scanning
-4. **Deploy code**: Writes code to disk and reloads modules dynamically
-5. **Learn from results**: Tracks what works and adjusts priorities
-6. **Communicate**: Sends updates via Discord and requests human input when needed
-
-### Self-Improvement Commands
-
-```bash
-# Trigger self-improvement via API
-curl -X POST http://localhost:8000/self-improve \
-  -H "Content-Type: application/json" \
-  -d '{"description": "Add support for detecting Slack tokens"}'
-
-# Trigger via Discord
-!improve Add support for detecting Slack tokens
-```
-
-### Example Self-Improvement Scenario
-
-1. System finds 20 unclassified keys
-2. Sends to Discord: "⚠️ Found 20 unclassified keys. Analyzing patterns..."
-3. Identifies a pattern (e.g., "xoxb-" for Slack)
-4. Sends: "💡 New key type discovered: Slack tokens"
-5. Writes code to add Slack detection
-6. Validates and deploys the update
-7. Sends: "✅ Added Slack token detection. Next scan will include it."
+### API Keys (Rank 7-10)
+- Cloud: AWS, GCP, Azure
+- Payment: Stripe, PayPal
+- AI: OpenAI, Claude, Google AI
+- Dev: GitHub, GitLab, Slack, Discord
+- Database: MongoDB, Supabase, Firebase
+- Email/SMS: Twilio, SendGrid, Mailgun
 
 ## 🏗️ Architecture
 
 ```
-apis/
-├── api/                    # FastAPI REST API
-│   ├── __init__.py
-│   ├── routes.py           # API endpoints
-│   ├── models.py           # Pydantic models
-│   └── dependencies.py     # Shared dependencies
-├── scanners/               # Scanner modules
-│   ├── __init__.py
-│   ├── base_scanner.py     # Abstract base class
-│   ├── censys_scanner.py   # Censys API scanner
-│   ├── github_scanner.py   # GitHub API scanner
-│   └── port_scanner.py     # Port and service scanner
-├── utils/                  # Utility modules
-│   ├── __init__.py
-│   ├── groq_parser.py      # AI-powered key extraction
-│   ├── key_validator.py    # Key validation
-│   ├── key_classifier.py   # Key classification (re-export)
-│   └── discord_notifier.py # Discord notifications
-├── self_improve/           # Self-improvement system
-│   ├── __init__.py
-│   ├── code_generator.py   # Code generation + SelfImprovementEngine
-│   ├── metrics_analyzer.py # Metrics analysis
-│   ├── auto_deploy.py      # Code deployment
-│   └── knowledge_base.py   # Persistent knowledge base
-├── core/                   # Core engine
-│   ├── __init__.py
-│   ├── engine.py           # Main engine orchestrator
-│   └── scanner_manager.py  # Scanner management
-├── config/                 # Configuration
-│   ├── __init__.py
-│   ├── settings.py         # Environment settings
-│   └── patterns.py         # Key classification patterns
-├── data/                   # Persistent data
-│   ├── keys_history.json
-│   ├── metrics.json
-│   └── knowledge.db
-├── tests/                  # Test suite
-│   ├── __init__.py
+AlphaScan/
+├── verification/              # v0.5: Secret verification system
+│   ├── verifier.py            # Core 3-layer verification pipeline
+│   ├── key_rank.py            # Rank 0-10 classification
+│   ├── ssh_intelligence.py    # SSH key detection
+│   ├── crypto_intelligence.py # Crypto key detection
+│   ├── api_intelligence.py    # API key detection
+│   ├── discord_reporter.py    # Clean classified reports
+│   └── verifiers/
+│       ├── ssh_verifier.py
+│       ├── crypto_verifier.py
+│       └── api_verifier.py
+├── autonomous/                # v0.5: True autonomy
+│   ├── env_manager.py         # Auto-request API keys
+│   ├── strategy_analyzer.py   # ROI-based pivoting
+│   ├── git_manager.py         # Auto-push to GitHub
+│   ├── command_handler.py     # Discord commands
+│   ├── module_registry.py     # Dynamic module management
+│   └── decision_logger.py     # Audit trail
+├── scanners/                  # Scanner modules
+│   ├── base_scanner.py
+│   ├── censys_scanner.py
+│   ├── github_scanner.py
+│   ├── port_scanner.py
+│   ├── pastebin_scanner.py    # v0.5: NEW
+│   └── telegram_scanner.py    # v0.5: NEW
+├── self_improve/              # Self-improvement system
+│   ├── code_generator.py
+│   ├── metrics_analyzer.py
+│   ├── auto_deploy.py
+│   └── knowledge_base.py
+├── core/                      # Core engine
+│   ├── engine.py              # v0.5: Autonomous loop
+│   └── scanner_manager.py
+├── config/
+│   ├── settings.py            # v0.5: New config vars
+│   └── patterns.py            # v0.5: All key patterns
+├── api/                       # FastAPI REST API
+├── utils/                     # Utility modules
+├── data/                      # Persistent data
+│   ├── verified_keys/         # v0.5: Verified keys storage
+│   └── decisions.log          # v0.5: Decision log
+├── tests/                     # Test suite
 │   ├── test_scanners.py
-│   └── test_validator.py
-├── main.py                 # Entry point
+│   ├── test_validator.py
+│   └── test_v05_features.py   # v0.5: Comprehensive tests
+├── main.py
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
 ```
-
-## 🔒 Security Considerations
-
-- **No full key logging**: Only first 6 characters are logged
-- **Discord webhook URL**: Never exposed in logs
-- **Non-root Docker user**: Container runs as non-root user
-- **Rate limiting**: API endpoints are rate-limited
-- **Input sanitization**: All user input is validated
-- **Code validation**: Self-generated code is checked for dangerous patterns
-- **Environment variables**: All API keys stored in environment variables only
 
 ## 🧪 Testing
 
@@ -215,56 +228,12 @@ apis/
 # Run all tests
 pytest tests/ -v
 
-# Run specific test file
-pytest tests/test_validator.py -v
+# Run v0.5 feature tests
+pytest tests/test_v05_features.py -v
 
 # Run with coverage
 pytest tests/ --cov=. --cov-report=html
 ```
-
-## 📊 Discord Communication
-
-### Status Updates
-```
-📡 APIS Status
-- Cycle #42 completed in 142s
-- Found 8 valid keys
-- Next scan in 4m 58s
-```
-
-### Key Reports
-```
-🔑 APIS - API Keys Found
-
-📊 Summary: 8 valid key(s)
-
-OPENAI (3)
-`sk-proj-abc123...`
-
-AWS (2)
-`AKIA1234567890...`
-
-GITHUB (2)
-`ghp_abcdef...`
-
-STRIPE LIVE (1)
-`sk_live_xyz...`
-```
-
-### Self-Improvement Updates
-```
-💡 System Improvement
-✅ Identified: Many keys from port 11434 (Ollama)
-⚙️ Generated: `ollama_scanner.py`
-✅ Deployed successfully
-Expected increase in key discovery: +37%
-```
-
-### Discord Commands
-- `!status` - Current engine state
-- `!scan` - Force immediate scan
-- `!improve <description>` - Trigger self-improvement
-- `!config` - Show current configuration
 
 ## 🐳 Docker Deployment
 
@@ -282,33 +251,16 @@ docker-compose down
 curl http://localhost:8000/health
 ```
 
-## 🔧 Troubleshooting
+## 🔒 Security Considerations
 
-### Common Issues
-
-1. **"Censys API credentials not configured"**
-   - Ensure `CENSYS_API_ID` and `CENSYS_API_SECRET` are set in `.env`
-
-2. **"GitHub token not configured"**
-   - Ensure `GITHUB_TOKEN` is set in `.env`
-
-3. **Discord notifications not working**
-   - Verify `DISCORD_WEBHOOK_URL` is correct
-   - Check that the webhook is still active
-
-4. **Docker health check failing**
-   - Ensure port 8000 is not already in use
-   - Check container logs: `docker-compose logs apis`
-
-5. **Groq API errors**
-   - The system will fall back to regex classification if Groq fails
-   - Verify `GROQ_API_KEY` is valid
-
-### Log Locations
-
-- Docker: `docker-compose logs -f`
-- Local: Console output
-- Data files: `data/` directory
+- **No full key logging**: Only first 6 characters are logged
+- **Passive verification only**: SSH keys are never used, crypto balance checks are read-only
+- **Discord webhook URL**: Never exposed in logs
+- **Non-root Docker user**: Container runs as non-root user
+- **Rate limiting**: API endpoints are rate-limited
+- **Input sanitization**: All user input is validated
+- **Code validation**: Self-generated code is checked for dangerous patterns
+- **Environment variables**: All API keys stored in environment variables only
 
 ## 📄 License
 

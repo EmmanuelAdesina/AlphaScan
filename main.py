@@ -1,5 +1,5 @@
 """
-Main entry point for APIS.
+Main entry point for AlphaScan v0.5.
 Starts the FastAPI server and optionally the autonomous engine.
 """
 import logging
@@ -10,19 +10,26 @@ from pathlib import Path
 # Ensure the project root is in the Python path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from config.settings import DEBUG, LOG_LEVEL
+from config.settings import DEBUG, LOG_LEVEL, AUTONOMOUS_MODE
 
 # Configure logging
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
-logger = logging.getLogger("apis")
+logger = logging.getLogger("alphascan")
 
 
 def main():
     """Main entry point."""
     import uvicorn
+
+    logger.info("Starting AlphaScan v0.5...")
+
+    if AUTONOMOUS_MODE:
+        logger.info("Autonomous mode: ENABLED")
+    else:
+        logger.info("Autonomous mode: DISABLED")
 
     # Start the FastAPI server
     uvicorn.run(

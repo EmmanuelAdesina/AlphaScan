@@ -16,8 +16,20 @@ services:
       - MAX_KEYS_PER_REPORT=${MAX_KEYS_PER_REPORT:-50}
       - DEBUG=${DEBUG:-false}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AUTONOMOUS_MODE=${AUTONOMOUS_MODE:-true}
+      - AUTO_PUSH_GITHUB=${AUTO_PUSH_GITHUB:-true}
+      - ALLOW_AUTO_RESTART=${ALLOW_AUTO_RESTART:-true}
+      - AUTO_PIVOT_THRESHOLD=${AUTO_PIVOT_THRESHOLD:-0.15}
+      - MAX_DECISION_LOG=${MAX_DECISION_LOG:-1000}
+      - ENABLE_SSH_DETECTION=${ENABLE_SSH_DETECTION:-true}
+      - ENABLE_CRYPTO_DETECTION=${ENABLE_CRYPTO_DETECTION:-true}
+      - ENABLE_API_DETECTION=${ENABLE_API_DETECTION:-true}
+      - VERIFICATION_TIMEOUT=${VERIFICATION_TIMEOUT:-5}
+      - ENABLE_ETHERSCAN_CHECK=${ENABLE_ETHERSCAN_CHECK:-true}
+      - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY}
     volumes:
       - ./data:/app/data
+      - ./decisions.log:/app/data/decisions.log
     restart: unless-stopped
     depends_on:
       - redis
