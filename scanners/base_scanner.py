@@ -1,5 +1,5 @@
 """
-Base scanner module for APIS.
+Base scanner module for AlphaScan v0.5.
 Defines the abstract interface that all scanners must implement.
 """
 import logging
@@ -60,11 +60,11 @@ class BaseScanner(ABC):
         """Hook called before scanning."""
         self._last_scan = datetime.utcnow()
         self._scan_count += 1
-        logger.info(f"Scanner '{self.name}' starting scan #{self._scan_count}")
+        logger.debug(f"Scanner '{self.name}' starting scan #{self._scan_count}")
 
     def _post_scan(self, result: ScanResult) -> ScanResult:
         """Hook called after scanning."""
-        logger.info(
+        logger.debug(
             f"Scanner '{self.name}' completed scan. "
             f"Found {len(result.raw_data)} items."
         )
@@ -81,6 +81,13 @@ class BaseScanner(ABC):
                 self._pre_scan()
                 result = self.scan()
                 return self._post_scan(result)
+            except ImportError as e:
+                # Optional dependency missing - disable scanner permanently
+                logger.warning(
+                    f"Scanner '{self.name}' disabled due to missing dependency: {e}"
+                )
+                self.enabled = False
+                return None
             except Exception as e:
                 logger.warning(
                     f"Scanner '{self.name}' attempt {attempt}/{max_retries} failed: {e}"

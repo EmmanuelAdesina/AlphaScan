@@ -16,11 +16,21 @@ class DiscordNotifier:
     Sends notifications to Discord via webhook.
     Handles status updates, key reports, self-improvement alerts,
     and autonomous decision notifications.
+
+    Uses the centralized HTTP client for retries, backoff, and DNS failure handling.
     """
 
     def __init__(self, webhook_url: Optional[str] = None):
         self.webhook_url = webhook_url or DISCORD_WEBHOOK_URL
         self._enabled = bool(self.webhook_url)
+        self._http = None  # Lazy-loaded HTTP client
+
+    def _get_http_client(self):
+        """Lazily initialize the HTTP client to avoid circular imports."""
+        if self._http is None:
+            from utils.http_client import get_http_client
+            self._http = get_http_client()
+        return self._http
 
     def _send(self, content: str, embeds: Optional[List[Dict]] = None) -> bool:
         """Send a message to Discord webhook."""
@@ -28,19 +38,27 @@ class DiscordNotifier:
             logger.warning("Discord webhook not configured, skipping notification")
             return False
 
-        import requests
-
         payload = {"content": content}
         if embeds:
             payload["embeds"] = embeds
 
         try:
-            response = requests.post(
+            response = self._get_http_client().post(
                 self.webhook_url,
                 json=payload,
                 timeout=10,
             )
-            response.raise_for_status()
+
+            if response is None:
+                logger.error("Discord webhook request failed (timeout or connection error)")
+                return False
+
+            if response.status_code >= 400:
+                logger.error(
+                    f"Discord webhook returned HTTP {response.status_code}"
+                )
+                return False
+
             return True
         except Exception as e:
             logger.error(f"Failed to send Discord notification: {e}")
@@ -56,7 +74,7 @@ class DiscordNotifier:
         ]
         if new_scanner:
             lines.append(f"- New scanner added: \"{new_scanner}\" (auto-generated)")
-        lines.append(f"- Next scan in {_format_interval()}")
+        lines.append(f"- Next scan in {_SCAN_INTERVAL_DISPLAY()}")
 
         return self._send("\n".join(lines))
 
@@ -139,7 +157,7 @@ class DiscordNotifier:
     def send_pivot_proposal(self, proposal: Dict) -> bool:
         """Send a strategy pivot proposal to Discord."""
         content = (
-            "🔄 **Strategy Pivot Proposal**\n"
+            "🔄 **Strategy Pivot Proposal**\n "
             f"- Current Strategy: {proposal.get('current_strategy', 'N/A')}\n"
             f"- Proposed Strategy: {proposal.get('proposed_strategy', 'N/A')}\n"
             f"- Expected ROI Improvement: {proposal.get('expected_roi_improvement', 0):.1%}\n"
@@ -173,11 +191,14 @@ class DiscordNotifier:
         return self._send(content, embeds)
 
 
-def _format_interval() -> str:
+def _SCAN_INTERVAL_DISPLAY() -> str:
     """Format the next scan interval for display."""
-    from config.settings import SCAN_INTERVAL
-    minutes = SCAN_INTERVAL // 60
-    seconds = SCAN_INTERVAL % 60
-    if minutes > 0:
-        return f"{minutes}m {seconds}s"
-    return f"{seconds}s"
+    try:
+        from config.settings import SCAN_INTERVAL
+        minutes = SCAN_INTERVAL // 60
+        seconds = SCAN_INTERVAL % 60
+        if minutes > 0:
+            return f"{minutes}m {seconds}s"
+        return f"{seconds}s"
+    except Exception:
+        return "5m"

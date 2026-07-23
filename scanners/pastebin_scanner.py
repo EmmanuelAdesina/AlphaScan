@@ -5,9 +5,9 @@ Scans Pastebin for public pastes containing API keys, secrets, and configuration
 Uses the Pastebin API (if available) or scrapes public pastes.
 """
 import logging
-import requests
 from typing import List, Dict, Optional
 from scanners.base_scanner import BaseScanner, ScanResult
+from utils.http_client import get_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +35,7 @@ class PastebinScanner(BaseScanner):
                  enabled: bool = True):
         super().__init__("pastebin", enabled)
         self.api_key = api_key
-        self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": "AlphaScan-v0.5-SecretScanner/1.0"
-        })
+        self._http = get_http_client()
 
     def scan(self) -> ScanResult:
         """
@@ -79,8 +76,8 @@ class PastebinScanner(BaseScanner):
                     "limit": 10,
                 }
                 try:
-                    response = self._session.get(url, params=params, timeout=10)
-                    if response.status_code == 200:
+                    response = self._http.get(url, params=params, timeout=10)
+                    if response and response.status_code == 200:
                         data = response.json()
                         for paste in data.get("results", []):
                             paste_key = paste.get("key", "")
@@ -101,9 +98,9 @@ class PastebinScanner(BaseScanner):
         try:
             # Fetch the public pastes page
             url = "https://pastebin.com/"
-            response = self._session.get(url, timeout=10)
-            if response.status_code != 200:
-                logger.warning(f"Pastebin public page returned status {response.status_code}")
+            response = self._http.get(url, timeout=10)
+            if not response or response.status_code != 200:
+                logger.warning(f"Pastebin public page returned status {response.status_code if response else 'None'}")
                 return results
 
             # Parse the HTML to find paste links
@@ -118,7 +115,6 @@ class PastebinScanner(BaseScanner):
                     if tag == "a":
                         href = dict(attrs).get("href", "")
                         if href and len(href) > 10 and not href.startswith("/api"):
-                            # Paste links look like /abc123
                             if len(href) == 9 and "/" in href:
                                 self.links.append(href)
 
@@ -129,9 +125,8 @@ class PastebinScanner(BaseScanner):
             for link in parser.links[:10]:  # Limit to 10 pastes
                 paste_url = f"https://pastebin.com{link}"
                 try:
-                    paste_response = self._session.get(paste_url, timeout=5)
-                    if paste_response.status_code == 200:
-                        # Extract text content from the paste
+                    paste_response = self._http.get(paste_url, timeout=5)
+                    if paste_response and paste_response.status_code == 200:
                         content = self._extract_paste_content(paste_response.text)
                         if content:
                             results.append(content)
@@ -147,8 +142,8 @@ class PastebinScanner(BaseScanner):
         """Fetch the raw content of a paste by key."""
         try:
             url = f"https://pastebin.com/raw/{paste_key}"
-            response = self._session.get(url, timeout=5)
-            if response.status_code == 200:
+            response = self._http.get(url, timeout=5)
+            if response and response.status_code == 200:
                 return response.text
         except Exception:
             pass

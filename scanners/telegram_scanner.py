@@ -5,9 +5,9 @@ Scans public Telegram channels and groups for messages containing API keys,
 secrets, and configuration files.
 """
 import logging
-import requests
 from typing import List, Dict, Optional
 from scanners.base_scanner import BaseScanner, ScanResult
+from utils.http_client import get_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -43,10 +43,7 @@ class TelegramScanner(BaseScanner):
                  enabled: bool = True):
         super().__init__("telegram", enabled)
         self.bot_token = bot_token
-        self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": "AlphaScan-v0.5-SecretScanner/1.0"
-        })
+        self._http = get_http_client()
 
     def scan(self) -> ScanResult:
         """
@@ -83,10 +80,9 @@ class TelegramScanner(BaseScanner):
         """Scan using the Telegram Bot API."""
         results = []
         try:
-            # Get updates (messages) from channels the bot is in
             url = f"https://api.telegram.org/bot{self.bot_token}/getUpdates"
-            response = self._session.get(url, timeout=10)
-            if response.status_code == 200:
+            response = self._http.get(url, timeout=10)
+            if response and response.status_code == 200:
                 data = response.json()
                 for update in data.get("result", []):
                     message = update.get("message", {})
@@ -103,9 +99,8 @@ class TelegramScanner(BaseScanner):
         results = []
         for channel_url in self.PUBLIC_CHANNELS:
             try:
-                response = self._session.get(channel_url, timeout=10)
-                if response.status_code == 200:
-                    # Extract message text from the HTML
+                response = self._http.get(channel_url, timeout=10)
+                if response and response.status_code == 200:
                     messages = self._extract_messages(response.text)
                     for msg in messages:
                         if self._contains_secret_patterns(msg):

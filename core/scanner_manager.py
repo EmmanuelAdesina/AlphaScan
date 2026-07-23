@@ -1,8 +1,9 @@
 """
-Scanner manager for APIS.
+Scanner manager for AlphaScan v0.5.
 Manages all scanners, runs them in parallel, and collects results.
 """
 import logging
+import time
 from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from scanners.base_scanner import BaseScanner, ScanResult
@@ -14,11 +15,17 @@ class ScannerManager:
     """
     Manages all scanner instances, runs them in parallel,
     and collects their results.
+
+    Features:
+    - Auto-recovery: if a scanner crashes, it is disabled and
+      re-enabled on the next cycle after a cooldown period.
     """
 
     def __init__(self, scanners: Optional[List[BaseScanner]] = None):
         self.scanners: List[BaseScanner] = scanners or []
         self._results: List[ScanResult] = []
+        self._failed_scanners: Dict[str, float] = {}  # name -> last_failure_time
+        self._cooldown_seconds = 300  # 5 minutes
 
     def add_scanner(self, scanner: BaseScanner) -> None:
         """Add a scanner to the manager."""
@@ -51,6 +58,9 @@ class ScannerManager:
         Returns:
             List of ScanResult objects from all scanners.
         """
+        # Refresh scanner availability (re-enable after cooldown)
+        self._refresh_scanner_availability()
+
         enabled_scanners = [s for s in self.scanners if s.is_enabled()]
         if not enabled_scanners:
             logger.warning("No enabled scanners found")
@@ -82,10 +92,13 @@ class ScannerManager:
                     result = future.result(timeout=120)
                     if result:
                         results.append(result)
+                        logger.info(f"Scanner '{scanner.name}' completed successfully")
+                    else:
+                        logger.warning(f"Scanner '{scanner.name}' returned no results")
+                        self._on_scanner_failure(scanner.name)
                 except Exception as e:
-                    logger.error(
-                        f"Scanner '{scanner.name}' failed: {e}"
-                    )
+                    logger.error(f"Scanner '{scanner.name}' failed: {e}")
+                    self._on_scanner_failure(scanner.name)
 
         return results
 
@@ -93,10 +106,40 @@ class ScannerManager:
         """Run scanners sequentially."""
         results: List[ScanResult] = []
         for scanner in scanners:
-            result = scanner.safe_scan()
-            if result:
-                results.append(result)
+            try:
+                result = scanner.safe_scan()
+                if result:
+                    results.append(result)
+                    logger.info(f"Scanner '{scanner.name}' completed successfully")
+                else:
+                    logger.warning(f"Scanner '{scanner.name}' returned no results")
+                    self._on_scanner_failure(scanner.name)
+            except Exception as e:
+                logger.error(f"Scanner '{scanner.name}' failed: {e}")
+                self._on_scanner_failure(scanner.name)
         return results
+
+    def _on_scanner_failure(self, scanner_name: str) -> None:
+        """Handle scanner failure by disabling it temporarily."""
+        self._failed_scanners[scanner_name] = time.time()
+        scanner = self.get_scanner(scanner_name)
+        if scanner:
+            scanner.enabled = False
+            logger.warning(
+                f"Scanner '{scanner_name}' disabled due to repeated failures. "
+                f"Will retry after {self._cooldown_seconds}s cooldown."
+            )
+
+    def _refresh_scanner_availability(self) -> None:
+        """Re-enable scanners after cooldown period."""
+        current_time = time.time()
+        for scanner in self.scanners:
+            if not scanner.is_enabled() and scanner.name in self._failed_scanners:
+                last_failure = self._failed_scanners[scanner.name]
+                if current_time - last_failure >= self._cooldown_seconds:
+                    scanner.enabled = True
+                    logger.info(f"Scanner '{scanner.name}' re-enabled after cooldown")
+                    del self._failed_scanners[scanner.name]
 
     def get_all_raw_data(self, results: Optional[List[ScanResult]] = None) -> List[str]:
         """
@@ -124,3 +167,7 @@ class ScannerManager:
     def get_enabled_scanners(self) -> List[str]:
         """Get list of enabled scanner names."""
         return [s.name for s in self.scanners if s.is_enabled()]
+
+    def get_failed_scanners(self) -> List[str]:
+        """Get list of currently failed scanner names."""
+        return list(self._failed_scanners.keys())

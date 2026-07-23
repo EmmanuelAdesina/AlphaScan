@@ -40,6 +40,11 @@ GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 DISCORD_WEBHOOK_URL: str = os.getenv("DISCORD_WEBHOOK_URL", "")
 
+# ── NVIDIA NIM (LLM Fallback) ─────────────────────────────────────────────
+NVIDIA_API_KEY: str = os.getenv("NVIDIA_API_KEY", "")
+NVIDIA_BASE_URL: str = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
+NVIDIA_MODEL: str = os.getenv("NVIDIA_MODEL", "nvidia/llama-2-70b")
+
 # ── Operational Settings ──────────────────────────────────────────────────
 SCAN_INTERVAL: int = _get_int("SCAN_INTERVAL", 300)
 MAX_KEYS_PER_REPORT: int = _get_int("MAX_KEYS_PER_REPORT", 50)
@@ -103,6 +108,7 @@ def get_config_summary() -> dict:
         "censys_configured": bool(CENSYS_API_ID and CENSYS_API_SECRET),
         "github_configured": bool(GITHUB_TOKEN),
         "groq_configured": bool(GROQ_API_KEY),
+        "nvidia_configured": bool(NVIDIA_API_KEY),
         "discord_configured": bool(DISCORD_WEBHOOK_URL),
         "data_dir": str(DATA_DIR),
         "autonomous_mode": AUTONOMOUS_MODE,

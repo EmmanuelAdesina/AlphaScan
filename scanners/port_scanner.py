@@ -1,13 +1,13 @@
 """
-Port scanner for APIS.
+Port scanner for AlphaScan v0.5.
 Scans common ports for exposed services and API endpoints.
 """
 import logging
 import socket
-import requests
 from typing import List, Dict, Optional, Set
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from scanners.base_scanner import BaseScanner, ScanResult
+from utils.http_client import get_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,7 @@ class PortScanner(BaseScanner):
         self.target = target
         self.ports = ports or self.COMMON_PORTS
         self.max_workers = max_workers
+        self._http = get_http_client()
 
     def scan(self) -> ScanResult:
         """
@@ -129,8 +130,8 @@ class PortScanner(BaseScanner):
 
         for url in urls_to_try:
             try:
-                response = requests.get(url, timeout=5, allow_redirects=True)
-                if response.status_code == 200 and response.text:
+                response = self._http.get(url, timeout=5)
+                if response and response.status_code == 200 and response.text:
                     return response.text
             except Exception:
                 continue
@@ -161,6 +162,7 @@ class ServiceScanner(BaseScanner):
 
     def __init__(self, enabled: bool = True):
         super().__init__("service", enabled)
+        self._http = get_http_client()
 
     def scan(self) -> ScanResult:
         """Scan service endpoints for exposed APIs."""
@@ -170,8 +172,8 @@ class ServiceScanner(BaseScanner):
         for service_name, endpoints in self.SERVICE_ENDPOINTS.items():
             for endpoint in endpoints:
                 try:
-                    response = requests.get(endpoint, timeout=5)
-                    if response.status_code == 200:
+                    response = self._http.get(endpoint, timeout=5)
+                    if response and response.status_code == 200:
                         metadata["services_found"].append({
                             "service": service_name,
                             "endpoint": endpoint,

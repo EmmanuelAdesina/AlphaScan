@@ -31,13 +31,24 @@ class GitHubScanner(BaseScanner):
         self.query = query or GITHUB_SEARCH_QUERY
         self._client = None
 
+        # Auto-disable if token not configured
+        if not self.token:
+            self.enabled = False
+
     def _get_client(self):
         """Lazily initialize the GitHub client."""
         if self._client is None:
-            if not self.token:
-                raise ValueError("GitHub token not configured")
-            from github import Github
-            self._client = Github(self.token)
+            try:
+                from github import Github
+                self._client = Github(self.token)
+            except ImportError:
+                logger.warning("PyGithub not installed. Install with: pip install PyGithub")
+                self.enabled = False
+                raise ImportError("PyGithub package not available")
+            except Exception as e:
+                logger.error(f"Failed to initialize GitHub client: {e}")
+                self.enabled = False
+                raise
         return self._client
 
     def scan(self) -> ScanResult:
@@ -45,33 +56,39 @@ class GitHubScanner(BaseScanner):
         Search GitHub for code containing potential API keys.
         Uses GitHub's code search API to find files with secrets.
         """
-        client = self._get_client()
         raw_data: List[str] = []
         metadata: Dict = {"query": self.query, "files_found": 0, "repos_searched": 0}
 
         try:
-            # Search for code matching the query
-            results = client.search_code(self.query, per_page=30)
+            client = self._get_client()
 
-            for file_content in results:
-                try:
-                    # Get file content
-                    content = file_content.decoded_content.decode("utf-8", errors="ignore")
-                    if content:
-                        raw_data.append(content)
-                        metadata["files_found"] += 1
+            try:
+                # Search for code matching the query
+                results = client.search_code(self.query, per_page=30)
 
-                    # Track repository
-                    repo_name = file_content.repository.full_name
-                    metadata["repos_searched"] += 1
+                for file_content in results:
+                    try:
+                        # Get file content
+                        content = file_content.decoded_content.decode("utf-8", errors="ignore")
+                        if content:
+                            raw_data.append(content)
+                            metadata["files_found"] += 1
 
-                except Exception as e:
-                    logger.debug(f"Failed to read file {file_content.name}: {e}")
-                    continue
+                        # Track repository
+                        repo_name = file_content.repository.full_name
+                        metadata["repos_searched"] += 1
 
+                    except Exception as e:
+                        logger.debug(f"Failed to read file {file_content.name}: {e}")
+                        continue
+
+            except Exception as e:
+                logger.error(f"GitHub search failed: {e}")
+
+        except ImportError:
+            logger.warning("GitHub scanner disabled: PyGithub not installed")
         except Exception as e:
-            logger.error(f"GitHub search failed: {e}")
-            raise
+            logger.error(f"GitHub scanner error: {e}")
 
         return ScanResult(
             scanner_name=self.name,
@@ -95,22 +112,31 @@ class GitHubRepoScanner(BaseScanner):
         self.target_repos = target_repos or []
         self._client = None
 
+        if not self.token:
+            self.enabled = False
+
     def _get_client(self):
         if self._client is None:
-            if not self.token:
-                raise ValueError("GitHub token not configured")
-            from github import Github
-            self._client = Github(self.token)
+            try:
+                from github import Github
+                self._client = Github(self.token)
+            except ImportError:
+                self.enabled = False
+                raise ImportError("PyGithub package not available")
+            except Exception as e:
+                logger.error(f"Failed to initialize GitHub client: {e}")
+                self.enabled = False
+                raise
         return self._client
 
     def scan(self) -> ScanResult:
         """Scan specific repositories for exposed secrets."""
-        client = self._get_client()
         raw_data: List[str] = []
         metadata: Dict = {"repos_scanned": 0, "files_found": 0}
 
         for repo_name in self.target_repos:
             try:
+                client = self._get_client()
                 repo = client.get_repo(repo_name)
                 metadata["repos_scanned"] += 1
 
@@ -130,6 +156,9 @@ class GitHubRepoScanner(BaseScanner):
                     except Exception as e:
                         logger.debug(f"Failed to read {file_path} in {repo_name}: {e}")
 
+            except ImportError:
+                logger.warning("GitHub repo scanner disabled: PyGithub not installed")
+                break
             except Exception as e:
                 logger.warning(f"Failed to scan repo {repo_name}: {e}")
                 continue

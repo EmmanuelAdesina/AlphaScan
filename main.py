@@ -1,37 +1,73 @@
 """
-Main entry point for AlphaScan v0.5.
-Starts the FastAPI server and optionally the autonomous engine.
+AlphaScan v0.5 - Main Application Entry Point
+Starts the FastAPI server and initializes all components.
 """
+import asyncio
 import logging
 import sys
-import os
 from pathlib import Path
 
-# Ensure the project root is in the Python path
-sys.path.insert(0, str(Path(__file__).parent))
+from config.settings import DEBUG, LOG_LEVEL
+from utils.config_validator import ConfigValidator
+from core.engine import AlphaScanEngine
 
-from config.settings import DEBUG, LOG_LEVEL, AUTONOMOUS_MODE
+# Configure structured logging
+def setup_logging():
+    """Configure structured logging with color formatting."""
+    import colorlog
 
-# Configure logging
-logging.basicConfig(
-    level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
-logger = logging.getLogger("alphascan")
+    handler = colorlog.StreamHandler()
+    formatter = colorlog.ColoredFormatter(
+        "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "critical": "red,bg_white",
+        },
+    )
+    handler.setFormatter(formatter)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, LOG_LEVEL, logging.INFO))
+    root_logger.addHandler(handler)
+
+    # Suppress noisy loggers
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("github").setLevel(logging.WARNING)
+    logging.getLogger("censys").setLevel(logging.WARNING)
 
 
 def main():
     """Main entry point."""
-    import uvicorn
+    setup_logging()
+    logger = logging.getLogger(__name__)
 
     logger.info("Starting AlphaScan v0.5...")
 
-    if AUTONOMOUS_MODE:
-        logger.info("Autonomous mode: ENABLED")
-    else:
-        logger.info("Autonomous mode: DISABLED")
+    # Validate configuration on startup
+    validator = ConfigValidator()
+    report = validator.validate_all()
 
-    # Start the FastAPI server
+    if report["errors"]:
+        logger.error("Configuration errors detected. Please fix before continuing:")
+        for error in report["errors"]:
+            logger.error(f"  {error}")
+
+    if report["warnings"]:
+        logger.warning("Configuration warnings:")
+        for warning in report["warnings"]:
+            logger.warning(f"  {warning}")
+
+    logger.info("Configuration validated.")
+    validator.log_report()
+
+    # Start FastAPI server
+    import uvicorn
+
+    logger.info("Starting FastAPI server on http://0.0.0.0:8000")
     uvicorn.run(
         "api.routes:app",
         host="0.0.0.0",
@@ -42,4 +78,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nShutting down AlphaScan...")
+    except Exception as e:
+        print(f"Fatal error: {e}", file=sys.stderr)
+        sys.exit(1)
