@@ -18,7 +18,7 @@ slowapi==0.1.9
 
 # Optional Scanners
 PyGithub==1.59.1
-censys==2.12.0
+censys==2.2.19
 gitpython==3.1.40
 
 # Database
