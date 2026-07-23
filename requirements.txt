@@ -22,7 +22,7 @@ censys==2.2.19
 gitpython==3.1.40
 
 # Database
-sqlite3  # built-in with Python
+# sqlite3  # built-in
 
 # Utilities
 python-dotenv==1.0.0
