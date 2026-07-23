@@ -1,1 +1,587 @@
-[]
+[
+  {
+    "type": "coinbase_key",
+    "value": "showCommonExtensions",
+    "description": "Coinbase API Key",
+    "masked_value": "[redacted:showCo...]",
+    "rank": 1,
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.3464,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.305405"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "HTTPValidationError",
+    "description": "Coinbase API Key",
+    "masked_value": "[redacted:HTTPVa...]",
+    "rank": 1,
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.5766,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.305851"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "oauth2RedirectUrl",
+    "description": "Coinbase API Key",
+    "rank": 2,
+    "context": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link type=\"text/css\" rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css\">\n    <link rel=\"shortcut icon\" href=\"https://fastapi.tiangolo.com/img/favicon.png\">\n    <title>AlphaScan v0.5 - Secret Intelligence System - Swagger UI</title>\n    </head>\n    <body>\n    <div id=\"swagger-ui\">\n    </div>\n    <script src=\"https://cdn.jsdelivr.net/npm/swag",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.275785",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.7345,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": [
+            "dev"
+          ]
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.306128"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "SwaggerUIStandalonePreset",
+    "description": "Coinbase API Key",
+    "rank": 2,
+    "context": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link type=\"text/css\" rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css\">\n    <link rel=\"shortcut icon\" href=\"https://fastapi.tiangolo.com/img/favicon.png\">\n    <title>AlphaScan v0.5 - Secret Intelligence System - Swagger UI</title>\n    </head>\n    <body>\n    <div id=\"swagger-ui\">\n    </div>\n    <script src=\"https://cdn.jsdelivr.net/npm/swag",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.275807",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.7337,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": [
+            "dev"
+          ]
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.306330"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "ImprovementRequest",
+    "description": "Coinbase API Key",
+    "rank": 1,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.283195",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.5033,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.307069"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "ImprovementResponse",
+    "description": "Coinbase API Key",
+    "rank": 1,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.283323",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.3006,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.307145"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "additionalProperties",
+    "description": "Coinbase API Key",
+    "rank": 1,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.284625",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.4842,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-23T01:01:28.307854"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "get_keys_by_type_keys__key_type__get",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.289822",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 2.8798,
+          "category": "low_medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309453"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "get_keys_by_rank_keys_rank__rank__get",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.289995",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.2322,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309548"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "get_verification_stats_verification_stats_get",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.290158",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.5114,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309632"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "trigger_self_improvement_self_improve_post",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.290297",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.6864,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309715"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "get_improvement_metrics_self_improve_metrics_get",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.290470",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.6374,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309799"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "get_autonomous_status_autonomous_status_get",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.290674",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.144,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309879"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "get_decisions_autonomous_decisions_get",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.290813",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.5445,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.309959"
+  },
+  {
+    "type": "alchemy_key",
+    "value": "discord_command_discord_command_post",
+    "description": "Alchemy API Key",
+    "rank": 5,
+    "context": "{\"openapi\":\"3.1.0\",\"info\":{\"title\":\"AlphaScan v0.5 - Secret Intelligence System\",\"description\":\"AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys\",\"version\":\"0.5.0\"},\"paths\":{\"/health\":{\"get\":{\"tags\":[\"health\"],\"summary\":\"Health Check\",\"description\":\"Health check endpoint.\",\"operationId\":\"health_check_health_get\",\"responses\":{\"200\":{\"description\":\"Successful Response\",\"content\":{\"application/json\":{\"schema\":{}}}}}}},\"/status\":{\"get\":{\"tags\":[\"status\"],\"summ",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-23T01:01:28.290966",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "RPC provider key format (alchemy_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.3956,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": []
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "RPC provider key format (alchemy_key)"
+      },
+      "risk_level": "medium",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-23T01:01:28.310039"
+  }
+]

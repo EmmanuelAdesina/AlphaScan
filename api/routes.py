@@ -2,9 +2,10 @@
 FastAPI routes for AlphaScan v0.5.
 Defines all REST API endpoints for the system.
 """
+import asyncio
 import logging
 from typing import List, Dict, Any
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -42,6 +43,44 @@ limiter = Limiter(key_func=get_remote_address, default_limits=[API_RATE_LIMIT])
 app.state.limiter = limiter
 
 
+async def _engine_runner(engine):
+    logger.info("Starting scan engine...")
+    try:
+        await asyncio.to_thread(engine.run)
+    except asyncio.CancelledError:
+        logger.info("Engine background task cancelled")
+        raise
+    except Exception:
+        logger.exception("Unhandled exception in engine background task")
+
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Application startup initiated.")
+    engine = get_engine()
+    logger.info("Engine initialized.")
+    task = asyncio.create_task(_engine_runner(engine))
+    app.state.engine_task = task
+    logger.info("Background scan task created.")
+    logger.info("Application startup complete.")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("Application shutdown initiated.")
+    engine = get_engine()
+    engine.stop()
+    task = getattr(app.state, "engine_task", None)
+    if task is not None:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            logger.info("Engine background task cancelled during shutdown")
+    logger.info("Engine stopped.")
+    logger.info("Application shutdown complete.")
+
+
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request, exc):
     return JSONResponse(
@@ -51,8 +90,6 @@ async def rate_limit_handler(request, exc):
 
 
 # ── Health Check ──────────────────────────────────────────────────────────
-
-from fastapi import Request
 
 @app.get("/health", tags=["health"])
 @limiter.limit("10/minute")
