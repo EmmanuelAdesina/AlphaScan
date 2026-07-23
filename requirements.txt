@@ -22,7 +22,7 @@ censys==2.2.19
 gitpython==3.1.40
 
 # Database
-# sqlite3  # built-in
+# sqlite3  # built-in, do not install via pip
 
 # Utilities
 python-dotenv==1.0.0
@@ -46,5 +46,5 @@ cryptography==41.0.7
 pyjwt==2.8.0
 
 # Async Support
-aiofiles==23.3.1
+aiofiles==24.1.0          # ← fixed version
 asyncio-throttle==1.0.2
