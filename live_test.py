@@ -2,7 +2,7 @@
 AlphaScan Live Endpoint Verification Script
 Tests all configured API endpoints and reports status.
 """
-import requests, json, os, sys
+import requests, os, sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,57 +27,34 @@ logprint("=" * 60)
 logprint("  AlphaScan - Live Endpoint Verification")
 logprint("=" * 60)
 logprint("")
+
 # ── 1. CENSYS (Platform API with PAT) ──
 logprint("[1/5] CENSYS Platform API")
-
 pat = os.getenv("CENSYS_PAT")
-
 if not pat:
     test("Censys", False, "CENSYS_PAT not configured in .env")
-
 else:
     try:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-        from alphascan.censys_client import (
-            CensysClient,
-            CensysAuthError
+        headers = {
+            "Authorization": f"Bearer {pat}",
+            "Accept": "application/json",
+            "User-Agent": "AlphaScan/1.0",
+        }
+        r = requests.get(
+            "https://search.censys.io/api/v2/hosts/search",
+            headers=headers,
+            params={"q": "api_key", "per_page": 1},
+            timeout=15,
         )
-
-        client = CensysClient(pat=pat)
-
-        auth_ok = client.verify_auth()
-
-        if auth_ok:
-            host = client.get_host("8.8.8.8")
-
-            test(
-                "Censys",
-                True,
-                f"PAT valid, host lookup successful"
-            )
-
+        if r.status_code == 200:
+            hits = r.json().get("result", {}).get("hits", [])
+            test("Censys", True, f"PAT valid, {len(hits)} hits returned")
+        elif r.status_code == 401:
+            test("Censys", False, "Status 401: PAT is invalid or expired")
         else:
-            test(
-                "Censys",
-                False,
-                "PAT is invalid or expired (401)"
-            )
-
-    except CensysAuthError:
-        test(
-            "Censys",
-            False,
-            "PAT is invalid or expired (401)"
-        )
-
+            test("Censys", False, f"Status {r.status_code}: {r.text[:100]}")
     except Exception as e:
-        test(
-            "Censys",
-            False,
-            str(e)[:150]
-        )
-
+        test("Censys", False, str(e)[:150])
 logprint("")
 
 # ── 2. GITHUB ──
