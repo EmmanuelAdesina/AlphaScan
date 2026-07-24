@@ -121,18 +121,11 @@ def calculate_entropy(data: str) -> float:
 def check_entropy(key: Dict) -> Tuple[bool, float, str]:
     """
     Check if key has sufficient entropy.
-    Returns (passes, entropy_value, category).
+    Returns (is_suspicious, entropy_value, category).
+    Entropy is advisory only — format-valid keys are not rejected for low entropy.
     """
     value = key.get("value", "")
     entropy = calculate_entropy(value)
-
-    # SSH keys have lower entropy due to base64 encoding
-    if key.get("type", "").startswith("ssh_"):
-        threshold = 3.5
-    elif key.get("type", "") in ("eth_private_key", "btc_wif"):
-        threshold = 3.5
-    else:
-        threshold = 3.0
 
     if entropy >= 4.0:
         category = "high"
@@ -143,8 +136,10 @@ def check_entropy(key: Dict) -> Tuple[bool, float, str]:
     else:
         category = "low"
 
-    passes = entropy >= threshold
-    return passes, entropy, category
+    # Only flag as suspicious if entropy is extremely low (< 1.5)
+    # This catches obvious fake/test data without rejecting valid keys
+    is_suspicious = entropy < 1.5
+    return is_suspicious, entropy, category
 
 
 # ── Layer 3: Etherscan Balance Check (for crypto keys) ────────────
@@ -252,16 +247,12 @@ def validate_key(key: Dict) -> Dict:
         result["validation_summary"] = f"FAILED format: {format_reason}"
         return result
 
-    # Layer 2: Entropy
-    entropy_ok, entropy_val, entropy_cat = check_entropy(key)
+    # Layer 2: Entropy (advisory — format-valid keys pass regardless)
+    entropy_suspicious, entropy_val, entropy_cat = check_entropy(key)
     result["entropy"] = round(entropy_val, 2)
     result["entropy_category"] = entropy_cat
-    result["entropy_valid"] = entropy_ok
-
-    if not entropy_ok:
-        result["valid"] = False
-        result["validation_summary"] = f"FAILED entropy ({entropy_val:.2f})"
-        return result
+    result["entropy_suspicious"] = entropy_suspicious
+    result["entropy_valid"] = not entropy_suspicious
 
     # Layer 3: Etherscan (crypto only)
     if key.get("type") == "eth_private_key":
