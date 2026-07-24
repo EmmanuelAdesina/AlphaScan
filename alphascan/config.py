@@ -9,8 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Required API Credentials ──────────────────────────────────────
-CENSYS_API_ID = os.getenv("CENSYS_API_ID", "")
-CENSYS_API_SECRET = os.getenv("CENSYS_API_SECRET", "")
+CENSYS_PAT = os.getenv("CENSYS_PAT", "")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
@@ -38,7 +37,7 @@ GITHUB_SEARCH_QUERY = os.getenv(
 def check_config():
     """Return dict of which services are configured."""
     return {
-        "censys": bool(CENSYS_API_ID and CENSYS_API_SECRET),
+        "censys": bool(CENSYS_PAT),
         "github": bool(GITHUB_TOKEN),
         "groq": bool(GROQ_API_KEY),
         "discord": bool(DISCORD_WEBHOOK_URL),

@@ -10,9 +10,10 @@ from typing import List
 import requests
 
 from alphascan.config import (
-    CENSYS_API_ID, CENSYS_API_SECRET, CENSYS_QUERY,
+    CENSYS_PAT, CENSYS_QUERY,
     GITHUB_TOKEN, GITHUB_SEARCH_QUERY,
 )
+from alphascan.censys_client import CensysClient
 
 logger = logging.getLogger(__name__)
 
@@ -21,26 +22,20 @@ _USER_AGENT = "AlphaScan/1.0"
 
 def scan_censys() -> List[str]:
     """
-    Scan Censys free tier for exposed API keys/secrets.
+    Scan Censys Platform API v3 for exposed API keys/secrets.
+    Uses PAT-based authentication via CensysClient.
     Returns list of raw text snippets found.
     """
-    if not CENSYS_API_ID or not CENSYS_API_SECRET:
-        logger.warning("Censys not configured, skipping")
+    if not CENSYS_PAT:
+        logger.warning("Censys not configured (CENSYS_PAT missing), skipping")
         return []
 
     results: List[str] = []
     try:
-        auth = (CENSYS_API_ID, CENSYS_API_SECRET)
-        url = "https://search.censys.io/api/v2/hosts/search"
-        params = {"q": CENSYS_QUERY, "per_page": 25}
+        client = CensysClient(pat=CENSYS_PAT)
+        hits = client.search_hosts(CENSYS_QUERY, per_page=25)
 
-        resp = requests.get(url, auth=auth, params=params, timeout=15, headers={"User-Agent": _USER_AGENT})
-        if resp.status_code != 200:
-            logger.warning(f"Censys API returned {resp.status_code}: {resp.text[:200]}")
-            return results
-
-        data = resp.json()
-        for hit in data.get("result", {}).get("hits", []):
+        for hit in hits:
             # Collect HTTP response bodies
             services = hit.get("services", [])
             for svc in services:
@@ -53,10 +48,8 @@ def scan_censys() -> List[str]:
                 if port in (11434, 7860, 8000, 8080, 5000, 3000):
                     results.append(f"Exposed service on port {port}: {svc.get('service_name', 'unknown')}")
 
-    except requests.RequestException as e:
-        logger.error(f"Censys scan failed: {e}")
     except Exception as e:
-        logger.error(f"Censys scan error: {e}")
+        logger.error(f"Censys scan failed: {e}")
 
     logger.info(f"Censys scan found {len(results)} raw snippets")
     return results

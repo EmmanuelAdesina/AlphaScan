@@ -1,0 +1,161 @@
+"""
+AlphaScan Censys Platform API Client.
+Uses Personal Access Token (PAT) authentication.
+No legacy API ID/Secret. No basic auth.
+
+Censys Platform API v3 docs:
+    https://docs.censys.io/api/v3/
+"""
+import logging
+import time
+from typing import Any, Dict, List, Optional
+
+import requests
+
+from alphascan.config import CENSYS_PAT
+
+logger = logging.getLogger(__name__)
+
+_BASE_URL = "https://api.platform.censys.io/v3"
+_MAX_RETRIES = 3
+_RETRY_DELAY_SEC = 2.0  # doubles each retry
+
+
+class CensysClient:
+    """
+    Reusable Censys Platform API client.
+
+    Usage:
+        client = CensysClient()
+        results = client.search_hosts("api_key", per_page=10)
+    """
+
+    def __init__(self, pat: Optional[str] = None) -> None:
+        self.pat = pat or CENSYS_PAT
+        self._session = requests.Session()
+        self._session.headers.update({
+            "Authorization": f"Bearer {self.pat}",
+            "Accept": "application/json",
+            "User-Agent": "AlphaScan/1.0",
+        })
+
+    # ── Public helpers ──────────────────────────────────────────────
+
+    def search_hosts(self, query: str, per_page: int = 25) -> List[Dict]:
+        """
+        Search Censys hosts index for services matching a query.
+        Returns a list of host result dicts.
+        """
+        url = f"{_BASE_URL}/hosts/search"
+        params = {"q": query, "per_page": per_page}
+        data = self._request("GET", url, params=params)
+        return data.get("result", {}).get("hits", [])
+
+    def get_host(self, ip: str) -> Optional[Dict]:
+        """Get detailed information about a specific host."""
+        url = f"{_BASE_URL}/hosts/{ip}"
+        try:
+            return self._request("GET", url)
+        except CensysNotFound:
+            return None
+
+    def verify_auth(self) -> bool:
+        """
+        Lightweight authentication check.
+        Returns True if the PAT is valid, False otherwise.
+        Does not raise on failure.
+        """
+        try:
+            # Censys v3 doesn't have a dedicated /me endpoint as v2 did,
+            # so we use a minimal hosts search as the health-check.
+            self.search_hosts("api_key", per_page=1)
+            return True
+        except CensysAuthError:
+            return False
+        except CensysError:
+            # Non-auth failures during a health-check are also considered
+            # "working" from an auth perspective.
+            return True
+
+    # ── Internal request logic ──────────────────────────────────────
+
+    def _request(self, method: str, url: str, **kwargs: Any) -> Dict:
+        """
+        Perform an authenticated request with retry & error handling.
+        Raises CensysError subclasses on failure.
+        """
+        last_exc: Optional[Exception] = None
+        delay = _RETRY_DELAY_SEC
+
+        for attempt in range(1, _MAX_RETRIES + 1):
+            try:
+                resp = self._session.request(method, url, timeout=15, **kwargs)
+
+                if resp.status_code == 401:
+                    raise CensysAuthError(
+                        "Invalid or expired Personal Access Token (PAT). "
+                        "Generate a new one at https://console.censys.io/api"
+                    )
+                if resp.status_code == 403:
+                    raise CensysPermissionError(
+                        f"Permission denied. Your PAT may lack the required scopes. "
+                        f"Body: {resp.text[:200]}"
+                    )
+                if resp.status_code == 404:
+                    raise CensysNotFound(f"Resource not found: {url}")
+                if resp.status_code == 429:
+                    retry_after = resp.headers.get("Retry-After", str(delay))
+                    logger.warning(
+                        f"Censys rate limited. Retrying after {retry_after}s "
+                        f"(attempt {attempt}/{_MAX_RETRIES})"
+                    )
+                    time.sleep(float(retry_after))
+                    continue
+                if 500 <= resp.status_code < 600:
+                    logger.warning(
+                        f"Censys server error {resp.status_code}. "
+                        f"Retrying in {delay}s (attempt {attempt}/{_MAX_RETRIES})"
+                    )
+                    time.sleep(delay)
+                    delay *= 2.0
+                    continue
+
+                # Success (2xx)
+                resp.raise_for_status()
+                return resp.json()
+
+            except (CensysAuthError, CensysPermissionError, CensysNotFound):
+                # Non-retryable errors — re-raise immediately
+                raise
+            except requests.RequestException as e:
+                last_exc = e
+                logger.debug(
+                    f"Censys request failed (attempt {attempt}/{_MAX_RETRIES}): {e}"
+                )
+                if attempt < _MAX_RETRIES:
+                    time.sleep(delay)
+                    delay *= 2.0
+
+        # If we exhausted retries
+        raise CensysError(
+            f"Censys request failed after {_MAX_RETRIES} retries"
+        ) from last_exc
+
+
+# ── Custom Exceptions ──────────────────────────────────────────────
+
+
+class CensysError(Exception):
+    """Base Censys API error."""
+
+
+class CensysAuthError(CensysError):
+    """401 — Invalid or expired PAT."""
+
+
+class CensysPermissionError(CensysError):
+    """403 — PAT lacks required scopes."""
+
+
+class CensysNotFound(CensysError):
+    """404 — Resource does not exist."""
