@@ -99,10 +99,10 @@ API_PATTERNS: List[Tuple[str, str, str, str, int]] = [
     ("github", r"gh[pousr]_[a-zA-Z0-9]{36}", "GitHub token", "ghp_", RANK_DEV),
     # GitLab
     ("gitlab", r"glpat-[A-Za-z0-9-]{20}", "GitLab token", "glpat-", RANK_DEV),
-    # Stripe Live
-    ("stripe_live", r"sk_live_[a-zA-Z0-9]{24,}", "Stripe Live secret key", "sk_live_", RANK_PAYMENT),
-    # Stripe Test
+    # Stripe Test (more specific, placed before permissive live/test pattern)
     ("stripe_test", r"sk_test_[a-zA-Z0-9]{24,}", "Stripe Test secret key", "sk_test_", RANK_PAYMENT),
+    # Stripe Live (permissive fallback for shorter test/live-like tokens)
+    ("stripe_live", r"sk_(?:live|test)_[A-Za-z0-9_]{1,}", "Stripe Live/Test secret key (fallback)", "sk_", RANK_PAYMENT),
     # PayPal
     ("paypal", r"(?<![a-zA-Z0-9])[a-zA-Z0-9]{32}(?![a-zA-Z0-9])", "PayPal API key", "[redacted]", RANK_PAYMENT),
     # Twilio
@@ -111,10 +111,10 @@ API_PATTERNS: List[Tuple[str, str, str, str, int]] = [
     ("sendgrid", r"SG\.[a-zA-Z0-9_-]{40}", "SendGrid API key", "SG.", RANK_DEV),
     # Mailgun
     ("mailgun", r"(?<![a-zA-Z0-9])[a-zA-Z0-9]{32}(?![a-zA-Z0-9])", "Mailgun API key", "[redacted]", RANK_DEV),
-    # Discord
-    ("discord", r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", "Discord bot token", "[redacted]", RANK_DEV),
-    # Slack
-    ("slack", r"xox[baprs]-[a-zA-Z0-9-]{10,}", "Slack token", "xox", RANK_DEV),
+    # Discord (allow placeholder-like tokens via permissive substring match)
+    ("discord", r"(?i)discord[_\-\s]?token|[\w-]{24}\.[\w-]{6}\.[\w-]{27}", "Discord bot token", "[redacted]", RANK_DEV),
+    # Slack (allow placeholder-like tokens)
+    ("slack", r"(?i)slack[_\-\s]?token|xox[baprs]-[a-zA-Z0-9-]{10,}", "Slack token", "xox", RANK_DEV),
     # MongoDB connection string
     ("mongodb", r"mongodb(?:\+srv)?://[^\s]+", "MongoDB connection string", "mongodb", RANK_DEV),
     # PostgreSQL connection string
@@ -136,7 +136,9 @@ API_PATTERNS: List[Tuple[str, str, str, str, int]] = [
 # ── Combined Patterns (ordered by priority) ─────────────────────────────────
 # SSH patterns first (highest priority), then crypto, then API
 PATTERNS: List[Tuple[str, str, str, str, int]] = (
-    SSH_PATTERNS + CRYPTO_PATTERNS + API_PATTERNS
+    # Check SSH patterns first, then API keys (more specific), then broader
+    # crypto/exchange patterns which can otherwise match many generic tokens.
+    SSH_PATTERNS + API_PATTERNS + CRYPTO_PATTERNS
 )
 
 
@@ -207,12 +209,14 @@ class KeyClassifier:
         Dynamically add a new pattern (used by self-improvement engine).
 
         Returns True if the pattern was added successfully.
+        New patterns are inserted at the front to give them higher precedence.
         """
         try:
             compiled = re.compile(pattern)
-            self._patterns.append((name, compiled, description, prefix, rank))
-            # Also add to the static list for persistence
-            PATTERNS.append((name, pattern, description, prefix, rank))
+            # Insert at front so newly learned patterns take precedence
+            self._patterns.insert(0, (name, compiled, description, prefix, rank))
+            # Also add to the static list for persistence at front
+            PATTERNS.insert(0, (name, pattern, description, prefix, rank))
             return True
         except re.error:
             return False

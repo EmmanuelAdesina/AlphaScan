@@ -97,6 +97,13 @@ VERIFICATION_TIMEOUT: int = _get_int("VERIFICATION_TIMEOUT", 5)
 ENABLE_ETHERSCAN_CHECK: bool = _get_bool("ENABLE_ETHERSCAN_CHECK", True)
 ETHERSCAN_API_KEY: str = os.getenv("ETHERSCAN_API_KEY", "")
 
+# ── v0.5 CEO Mode Settings ─────────────────────────────────────────────────
+CEO_MODE: bool = _get_bool("CEO_MODE", True)
+CEO_CYCLES_BEFORE_SUGGEST_NEW_SOURCES: int = _get_int("CEO_CYCLES_BEFORE_SUGGEST_NEW_SOURCES", 3)
+CEO_FAILURES_BEFORE_SUGGEST_REMOVE: int = _get_int("CEO_FAILURES_BEFORE_SUGGEST_REMOVE", 3)
+CEO_MAX_PENDING_QUESTIONS: int = _get_int("CEO_MAX_PENDING_QUESTIONS", 5)
+KNOWLEDGE_JSON_PATH: Path = DATA_DIR / "knowledge.json"
+
 
 def get_config_summary() -> dict:
     """Return a summary of current configuration (safe for logging)."""

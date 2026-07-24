@@ -8,11 +8,14 @@ import json
 from typing import List, Dict, Optional, Any, Tuple
 from datetime import datetime
 
-from self_improve.knowledge_base import KnowledgeBase
+from self_improve.knowledge_base import KnowledgeBase as OldKnowledgeBase
 from self_improve.metrics_analyzer import MetricsAnalyzer
 from self_improve.auto_deploy import AutoDeployer
 from utils.discord_notifier import DiscordNotifier
 from config.patterns import KeyClassifier, PATTERNS
+from core.knowledge_base import KnowledgeBase as CeoKnowledgeBase
+from pathlib import Path
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +237,9 @@ class SelfImprovementEngine:
 
     def __init__(self, engine: Any = None):
         self.engine = engine
-        self.kb = KnowledgeBase()
+        self.kb = OldKnowledgeBase()
+        # Use CEO KnowledgeBase for duplicate detection if available
+        self.ceo_kb = CeoKnowledgeBase()
         self.analyzer = MetricsAnalyzer(self.kb)
         self.deployer = AutoDeployer()
         self.generator = CodeGenerator(
@@ -243,6 +248,7 @@ class SelfImprovementEngine:
         self.notifier = self.generator.notifier
         self._improvement_queue: List[Dict] = []
         self._last_analysis: Optional[Dict] = None
+        self._generated_this_session: set = set()  # Track in-memory to prevent double-gen
 
     def learn_from_results(self, keys: List[Dict], scan_results: List) -> None:
         """
@@ -419,9 +425,62 @@ class SelfImprovementEngine:
             prefix=prefix,
         )
 
+    def _should_generate_scanner(self, description: str, filename: str) -> Tuple[bool, str]:
+        """
+        Check if a scanner should actually be generated.
+        Prevents duplicate generation.
+
+        Returns:
+            Tuple of (should_generate, reason).
+        """
+        # Extract scanner name from filename
+        scanner_name = filename.replace("_scanner.py", "").replace("scanners/", "")
+
+        # 1. Check if scanner file already exists on disk
+        scanner_path = Path(f"scanners/{scanner_name}_scanner.py")
+        if scanner_path.exists():
+            return False, f"Scanner file '{scanner_name}_scanner.py' already exists on disk."
+
+        # 2. Check if already generated this session (in-memory guard)
+        session_key = f"scanner:{scanner_name}"
+        if session_key in self._generated_this_session:
+            return False, f"Scanner '{scanner_name}' was already generated this session."
+
+        # 3. Check CEO knowledge base
+        if self.ceo_kb.scanner_exists(scanner_name):
+            return False, f"Scanner '{scanner_name}' already registered in knowledge base."
+
+        if self.ceo_kb.scanner_already_tried(scanner_name):
+            return False, f"Scanner '{scanner_name}' was already attempted previously."
+
+        return True, ""
+
     def _generate_and_deploy_scanner(self, opportunity: Dict) -> None:
         """Generate and deploy a new scanner."""
         description = opportunity.get("description", "Add new scanner")
+
+        # Extract potential scanner name before full generation
+        desc_lower = description.lower()
+        words = desc_lower.split()
+        potential_name = "custom"
+        for word in words:
+            if word in ("for", "scanner", "scan", "new", "add", "a"):
+                continue
+            potential_name = word
+            break
+        potential_filename = f"{potential_name}_scanner.py"
+
+        # Check if we should generate before proceeding
+        should_gen, reason = self._should_generate_scanner(description, potential_filename)
+        if not should_gen:
+            self.notifier.send_self_improvement(
+                f"⏭️ Skipping scanner generation for '{potential_name}': {reason}",
+                success=True,
+            )
+            self.ceo_kb.record_scanner_attempt(potential_name, success=False)
+            self.analyzer.record_code_generation(False)
+            return
+
         self.notifier.send_self_improvement(
             f"Identified: {description}. Generating scanner...",
             success=True,
@@ -433,6 +492,13 @@ class SelfImprovementEngine:
 
         module_path = f"scanners.{filename.replace('.py', '')}"
         success, msg = self.deployer.deploy_code(code, filename, module_path)
+
+        # Record the attempt in CEO knowledge base
+        actual_name = filename.replace("_scanner.py", "")
+        self._generated_this_session.add(f"scanner:{actual_name}")
+        self.ceo_kb.record_scanner_attempt(actual_name, success=success)
+        if success:
+            self.ceo_kb.register_scanner(actual_name, success=True)
 
         self.analyzer.record_code_generation(success)
 
@@ -512,12 +578,29 @@ class SelfImprovementEngine:
 
         code, filename = self.generator.generate_feature(description)
 
+        # Duplicate guard for scanner generation (fix add_scanner loop)
+        if "scanner" in description.lower() or "scan" in description.lower():
+            scanner_name = filename.replace("_scanner.py", "")
+            should_gen, reason = self._should_generate_scanner(description, filename)
+            # Record every attempt in knowledge base as required
+            self.ceo_kb.record_scanner_attempt(scanner_name, success=False)
+            if not should_gen:
+                self.notifier.send_self_improvement(
+                    f"⏭️ Skipping scanner generation for '{scanner_name}': {reason}",
+                    success=True,
+                )
+                return False, reason
+
         # Determine deployment target
         if "scanner" in description.lower() or "scan" in description.lower():
             module_path = f"scanners.{filename.replace('.py', '')}"
             success, msg = self.deployer.deploy_code(code, filename, module_path)
             if success:
                 self.deployer.reload_module(module_path)
+                self.ceo_kb.register_scanner(filename.replace("_scanner.py", ""), success=True)
+                self.ceo_kb.record_code_generation(description, filename, True)
+            else:
+                self.ceo_kb.record_code_generation(description, filename, False)
         elif "pattern" in description.lower():
             success, msg = self._deploy_pattern({"description": description})
         else:

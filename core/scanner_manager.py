@@ -48,6 +48,26 @@ class ScannerManager:
                 return scanner
         return None
 
+    def enable_scanner(self, name: str) -> bool:
+        """Enable a scanner by name."""
+        scanner = self.get_scanner(name)
+        if scanner is None:
+            return False
+        scanner.enabled = True
+        if name in self._failed_scanners:
+            del self._failed_scanners[name]
+        logger.info(f"Enabled scanner: {name}")
+        return True
+
+    def disable_scanner(self, name: str) -> bool:
+        """Disable a scanner by name."""
+        scanner = self.get_scanner(name)
+        if scanner is None:
+            return False
+        scanner.enabled = False
+        logger.info(f"Disabled scanner: {name}")
+        return True
+
     def scan_all(self, parallel: bool = True) -> List[ScanResult]:
         """
         Run all enabled scanners and collect results.

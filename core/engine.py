@@ -15,12 +15,16 @@ from config.settings import (
     SCAN_INTERVAL, DEBUG, AUTONOMOUS_MODE, AUTO_PUSH_GITHUB,
     ALLOW_AUTO_RESTART, AUTO_PIVOT_THRESHOLD,
     ENABLE_SSH_DETECTION, ENABLE_CRYPTO_DETECTION, ENABLE_API_DETECTION,
-    VERIFICATION_TIMEOUT,
+    VERIFICATION_TIMEOUT, CEO_MODE, KNOWLEDGE_JSON_PATH,
 )
 from core.scanner_manager import ScannerManager
+from core.knowledge_base import KnowledgeBase
+from core.ceo_controller import CeoController
+from core.decision_executor import DecisionExecutor
 from utils.groq_parser import GroqParser
 from utils.key_validator import KeyValidator
 from utils.discord_notifier import DiscordNotifier
+from utils.command_handler import DiscordCommandHandler
 from verification.verifier import SecretVerifier
 from verification.discord_reporter import DiscordReporter
 from verification.key_rank import KeyRanker
@@ -73,6 +77,21 @@ class AlphaScanEngine:
         self.state = EngineState()
         self.state.uptime_start = datetime.utcnow().isoformat()
 
+        # v0.5: CEO Mode - knowledge base, controller, executor
+        self.ceo_knowledge_base = KnowledgeBase(
+            json_path=str(KNOWLEDGE_JSON_PATH)
+        )
+        self.ceo_controller = CeoController(
+            knowledge_base=self.ceo_knowledge_base,
+            notifier=DiscordNotifier(),
+        )
+        self.decision_executor = DecisionExecutor(
+            knowledge_base=self.ceo_knowledge_base,
+            notifier=self.notifier,
+            scanner_manager=None,  # Will be set after initialization
+            code_generator=None,  # Will be set lazily
+        )
+
         # Initialize components
         self.scanner_manager = ScannerManager()
         self.parser = GroqParser()
@@ -87,24 +106,7 @@ class AlphaScanEngine:
         # v0.5: Autonomous system
         self.env_manager = EnvManager(notifier=self.notifier)
         self.strategy_analyzer = StrategyAnalyzer(pivot_threshold=AUTO_PIVOT_THRESHOLD)
-        self.git_manager = GitManager(auto_push=AUTO_PUSH_GITHUB)
-        self.command_handler = CommandHandler(
-            engine=self, notifier=self.notifier,
-            git_manager=self.git_manager, env_manager=self.env_manager,
-        )
-        self.module_registry = ModuleRegistry()
-        self.decision_logger = DecisionLogger()
-
-        # Initialize self-improvement engine (lazy import to avoid circular deps)
-        self._improver = None
-
-        # Initialize scanners
-        self._init_scanners()
-
-        # Data storage
-        self._all_keys: List[Dict] = []
-        self._verified_keys: List[Dict] = []
-        self._lock = threading.Lock()
+        self.git_manager = GitManager(auto_push=AUTO)
 
     def _init_scanners(self) -> None:
         """Initialize and register all scanners."""
@@ -449,3 +451,4 @@ class AlphaScanEngine:
     def process_command(self, command: str) -> Dict:
         """Process a Discord command."""
         return self.command_handler.process_command(command)
+
