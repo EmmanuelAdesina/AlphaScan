@@ -1,65 +1,54 @@
 {
-  "cycle": 2,
-  "total_keys_found": 12,
-  "total_scans": 2,
-  "last_scan_time": "2026-07-24T08:30:01.059831",
-  "last_scan_duration": 283.28012776374817,
-  "discovered_key_types": [
-    "coinbase_key",
-    "generic"
-  ],
+  "cycle": 1,
+  "total_keys_found": 0,
+  "total_scans": 1,
+  "last_scan_time": "2026-07-24T08:47:04.316036",
+  "last_scan_duration": 356.2670271396637,
+  "discovered_key_types": [],
   "scanner_stats": [
     {
       "name": "censys",
       "enabled": false,
       "scan_count": 1,
-      "last_scan": "2026-07-24T08:16:19.107335"
+      "last_scan": "2026-07-24T08:41:08.051051"
     },
     {
       "name": "github",
       "enabled": false,
       "scan_count": 1,
-      "last_scan": "2026-07-24T08:16:19.122629"
+      "last_scan": "2026-07-24T08:41:08.052764"
     },
     {
       "name": "port",
       "enabled": true,
-      "scan_count": 2,
-      "last_scan": "2026-07-24T08:25:30.467025"
+      "scan_count": 1,
+      "last_scan": "2026-07-24T08:41:08.053687"
     },
     {
       "name": "service",
       "enabled": true,
-      "scan_count": 2,
-      "last_scan": "2026-07-24T08:25:30.467622"
+      "scan_count": 1,
+      "last_scan": "2026-07-24T08:41:08.055061"
     },
     {
       "name": "pastebin",
       "enabled": true,
-      "scan_count": 2,
-      "last_scan": "2026-07-24T08:25:30.471230"
+      "scan_count": 1,
+      "last_scan": "2026-07-24T08:41:08.057621"
     },
     {
       "name": "telegram",
       "enabled": true,
-      "scan_count": 2,
-      "last_scan": "2026-07-24T08:25:30.496291"
+      "scan_count": 1,
+      "last_scan": "2026-07-24T08:41:08.057288"
     }
   ],
   "autonomous_decisions": 0,
-  "keys_by_rank": {
-    "10": 6,
-    "2": 3
-  },
+  "keys_by_rank": {},
   "verification_stats": {
-    "total_verified": 12,
-    "total_rejected": 1,
-    "by_type": {
-      "coinbase_key": 6,
-      "kraken_key": 6
-    },
-    "by_rank": {
-      "2": 12
-    }
+    "total_verified": 0,
+    "total_rejected": 0,
+    "by_type": {},
+    "by_rank": {}
   }
 }
