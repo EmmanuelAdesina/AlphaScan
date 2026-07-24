@@ -131,6 +131,7 @@ API_PATTERNS: List[Tuple[str, str, str, str, int]] = [
     ("generic_apikey", r'(?i)(?:api[_-]?key|apikey|secret[_-]?key|access[_-]?token)["\']?\s*[:=]\s*["\']?([a-zA-Z0-9_-]{32,})',
      "Generic API key", "[redacted]", RANK_DEV),
     ("generic_bearer", r"(?i)bearer\s+([a-zA-Z0-9._-]{20,})", "Generic Bearer token", "[redacted]", RANK_DEV),
+    ("custom", r"[a-zA-Z0-9_-]{20,}", "Auto-generated pattern", "[redacted]", RANK_DEV),
 ]
 
 # ── Combined Patterns (ordered by priority) ─────────────────────────────────

@@ -125,3 +125,90 @@ async def health_check(request: Request):
             "version": "0.5.0",
             "error": str(e),
         }
+
+
+@app.get("/", tags=["health"])
+@limiter.limit("10/minute")
+async def root(request: Request):
+    """Root endpoint with basic service info."""
+    return {
+        "service": "AlphaScan",
+        "version": "0.5.0",
+        "health": "ok",
+        "endpoints": ["/health", "/status", "/scan", "/results", "/keys", "/improvement", "/metrics"],
+    }
+
+
+@app.get("/status", response_model=StatusResponse, tags=["engine"])
+@limiter.limit("10/minute")
+async def get_status(request: Request):
+    """Return current engine status."""
+    engine = get_engine()
+    return engine.get_status()
+
+
+@app.post("/scan", response_model=ScanResponse, tags=["engine"])
+@limiter.limit("5/minute")
+async def trigger_scan(request: Request, scan_request: ScanRequest):
+    """Trigger an immediate scan cycle."""
+    engine = get_engine()
+    scan_id = f"scan-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    try:
+        result = await asyncio.to_thread(engine.force_scan)
+        return {
+            "status": "success",
+            "message": f"Scan triggered successfully. Cycle {result['cycle']} completed.",
+            "scan_id": scan_id,
+        }
+    except Exception as e:
+        logger.error(f"Scan trigger failed: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/results", response_model=ResultsResponse, tags=["engine"])
+@limiter.limit("10/minute")
+async def get_results(request: Request):
+    """Get recent scan results."""
+    engine = get_engine()
+    results = engine.get_results()
+    return {"total": len(results), "results": results}
+
+
+@app.get("/keys", response_model=KeyResponse, tags=["engine"])
+@limiter.limit("10/minute")
+async def get_keys(request: Request):
+    """Get all discovered keys."""
+    engine = get_engine()
+    keys = engine.get_keys()
+    return {"total": len(keys), "keys": keys}
+
+
+@app.post("/improvement", response_model=ImprovementResponse, tags=["self-improvement"])
+@limiter.limit("5/minute")
+async def request_improvement(request: ImprovementRequest):
+    """Trigger a self-improvement cycle."""
+    engine = get_engine()
+    try:
+        success, message = await asyncio.to_thread(engine.improver.trigger_improvement, request.description)
+        return {
+            "success": success,
+            "message": message,
+            "code_generated": None,
+            "filename": None,
+        }
+    except Exception as e:
+        logger.error(f"Improvement request failed: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/metrics", response_model=MetricsResponse, tags=["self-improvement"])
+@limiter.limit("10/minute")
+async def get_metrics(request: Request):
+    """Get self-improvement metrics."""
+    engine = get_engine()
+    try:
+        metrics = engine.improver.get_metrics()
+        return metrics
+    except Exception as e:
+        logger.error(f"Metrics request failed: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

@@ -121,5 +121,314 @@
     },
     "risk_level": "high",
     "verified_at": "2026-07-24T08:20:21.145465"
+  },
+  {
+    "type": "generic",
+    "value": "AlphaScan v0.5 - Secret Intelligence System",
+    "description": "Application title",
+    "masked_value": "AlphaScan v...",
+    "verified": true,
+    "rank": 10,
+    "verification": {
+      "verified": true,
+      "method": "generic_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Basic format check"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 4.1962,
+          "category": "high"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Generic verification - limited checks"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T08:30:01.058497"
+  },
+  {
+    "type": "generic",
+    "value": "AI-driven system that scans the internet for exposed API keys, SSH keys, and crypto keys",
+    "description": "Application description",
+    "masked_value": "AI-driven s...",
+    "verified": true,
+    "rank": 10,
+    "verification": {
+      "verified": true,
+      "method": "generic_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Basic format check"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 4.2275,
+          "category": "high"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Generic verification - limited checks"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T08:30:01.058566"
+  },
+  {
+    "type": "generic",
+    "value": "health_check_health_get",
+    "description": "Operation ID for health check endpoint",
+    "masked_value": "health_chec...",
+    "verified": true,
+    "rank": 10,
+    "verification": {
+      "verified": true,
+      "method": "generic_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Basic format check"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 2.9966,
+          "category": "low_medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Generic verification - limited checks"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T08:30:01.058648"
+  },
+  {
+    "type": "generic",
+    "value": "Successful Response",
+    "description": "Response description for health check endpoint",
+    "masked_value": "Successful ...",
+    "verified": true,
+    "rank": 10,
+    "verification": {
+      "verified": true,
+      "method": "generic_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Basic format check"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.3661,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Generic verification - limited checks"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T08:30:01.058701"
+  },
+  {
+    "type": "generic",
+    "value": "application/json",
+    "description": "Response content type for health check endpoint",
+    "masked_value": "application...",
+    "verified": true,
+    "rank": 10,
+    "verification": {
+      "verified": true,
+      "method": "generic_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Basic format check"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.375,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Generic verification - limited checks"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T08:30:01.058748"
+  },
+  {
+    "type": "generic",
+    "value": "/docs/oauth2-redirect",
+    "description": "OAuth2 redirect URL",
+    "masked_value": "/docs/oauth...",
+    "verified": true,
+    "rank": 10,
+    "verification": {
+      "verified": true,
+      "method": "generic_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Basic format check"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.7257,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Generic verification - limited checks"
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T08:30:01.058960"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "showCommonExtensions",
+    "description": "Coinbase API Key",
+    "rank": 2,
+    "context": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link type=\"text/css\" rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css\">\n    <link rel=\"shortcut icon\" href=\"https://fastapi.tiangolo.com/img/favicon.png\">\n    <title>AlphaScan v0.5 - Secret Intelligence System - Swagger UI</title>\n    </head>\n    <body>\n    <div id=\"swagger-ui\">\n    </div>\n    <script src=\"https://cdn.jsdelivr.net/npm/swag",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-24T08:30:01.049063",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.3464,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": [
+            "dev"
+          ]
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-24T08:30:01.059070"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "oauth2RedirectUrl",
+    "description": "Coinbase API Key",
+    "rank": 2,
+    "context": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link type=\"text/css\" rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css\">\n    <link rel=\"shortcut icon\" href=\"https://fastapi.tiangolo.com/img/favicon.png\">\n    <title>AlphaScan v0.5 - Secret Intelligence System - Swagger UI</title>\n    </head>\n    <body>\n    <div id=\"swagger-ui\">\n    </div>\n    <script src=\"https://cdn.jsdelivr.net/npm/swag",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-24T08:30:01.049123",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.7345,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": [
+            "dev"
+          ]
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-24T08:30:01.059268"
+  },
+  {
+    "type": "coinbase_key",
+    "value": "SwaggerUIStandalonePreset",
+    "description": "Coinbase API Key",
+    "rank": 2,
+    "context": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link type=\"text/css\" rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css\">\n    <link rel=\"shortcut icon\" href=\"https://fastapi.tiangolo.com/img/favicon.png\">\n    <title>AlphaScan v0.5 - Secret Intelligence System - Swagger UI</title>\n    </head>\n    <body>\n    <div id=\"swagger-ui\">\n    </div>\n    <script src=\"https://cdn.jsdelivr.net/npm/swag",
+    "is_defi_admin": false,
+    "detected_at": "2026-07-24T08:30:01.049174",
+    "verified": true,
+    "verification": {
+      "verified": true,
+      "method": "passive_crypto_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Exchange key format (coinbase_key)"
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.7337,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_defi_admin": false,
+          "is_production": false,
+          "context_keywords": [
+            "dev"
+          ]
+        }
+      },
+      "type_specific": {
+        "passed": true,
+        "format_details": "Exchange key format (coinbase_key)"
+      },
+      "risk_level": "high",
+      "note": "Passive verification only - no funds accessed"
+    },
+    "risk_level": "high",
+    "verified_at": "2026-07-24T08:30:01.059414"
   }
 ]
