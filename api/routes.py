@@ -185,11 +185,11 @@ async def get_keys(request: Request):
 
 @app.post("/improvement", response_model=ImprovementResponse, tags=["self-improvement"])
 @limiter.limit("5/minute")
-async def request_improvement(request: ImprovementRequest):
+async def request_improvement(request: Request, improvement_request: ImprovementRequest):
     """Trigger a self-improvement cycle."""
     engine = get_engine()
     try:
-        success, message = await asyncio.to_thread(engine.improver.trigger_improvement, request.description)
+        success, message = await asyncio.to_thread(engine.improver.trigger_improvement, improvement_request.description)
         return {
             "success": success,
             "message": message,
