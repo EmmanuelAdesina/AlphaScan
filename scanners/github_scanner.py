@@ -27,8 +27,8 @@ class GitHubScanner(BaseScanner):
                  query: Optional[str] = None,
                  enabled: bool = True):
         super().__init__("github", enabled)
-        self.token = token or GITHUB_TOKEN
-        self.query = query or GITHUB_SEARCH_QUERY
+        self.token = GITHUB_TOKEN if token is None else token
+        self.query = GITHUB_SEARCH_QUERY if query is None else query
         self._client = None
 
         # Auto-disable if token not configured
@@ -108,7 +108,7 @@ class GitHubRepoScanner(BaseScanner):
                  target_repos: Optional[List[str]] = None,
                  enabled: bool = True):
         super().__init__("github_repos", enabled)
-        self.token = token or GITHUB_TOKEN
+        self.token = GITHUB_TOKEN if token is None else token
         self.target_repos = target_repos or []
         self._client = None
 

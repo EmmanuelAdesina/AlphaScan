@@ -1,1 +1,146 @@
-[]
+[
+  {
+    "type": "discord",
+    "value": "/discord/command",
+    "description": "Discord command endpoint",
+    "masked_value": "/discord/co...",
+    "verified": true,
+    "rank": 10,
+    "confidence": 1.0,
+    "verification": {
+      "verified": true,
+      "method": "passive_api_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Generic API key format (discord)",
+          "prefix_check": true,
+          "length_check": true
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.2028,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false,
+          "is_test": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Format validation only - no live API calls made",
+      "confidence": 1.0
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T11:00:37.276758"
+  },
+  {
+    "type": "discord",
+    "value": "/discord/command",
+    "description": "Discord command endpoint",
+    "masked_value": "/discord/co...",
+    "verified": true,
+    "rank": 10,
+    "confidence": 1.0,
+    "verification": {
+      "verified": true,
+      "method": "passive_api_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Generic API key format (discord)",
+          "prefix_check": true,
+          "length_check": true
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.2028,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false,
+          "is_test": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Format validation only - no live API calls made",
+      "confidence": 1.0
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T11:01:04.427871"
+  },
+  {
+    "type": "discord",
+    "value": "/discord/command",
+    "description": "Discord command endpoint",
+    "masked_value": "/discord/co...",
+    "verified": true,
+    "rank": 10,
+    "confidence": 1.0,
+    "verification": {
+      "verified": true,
+      "method": "passive_api_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Generic API key format (discord)",
+          "prefix_check": true,
+          "length_check": true
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.2028,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false,
+          "is_test": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Format validation only - no live API calls made",
+      "confidence": 1.0
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T11:04:00.354493"
+  },
+  {
+    "type": "discord",
+    "value": "/discord/command",
+    "description": "Discord command endpoint",
+    "masked_value": "/discord/co...",
+    "verified": true,
+    "rank": 10,
+    "confidence": 1.0,
+    "verification": {
+      "verified": true,
+      "method": "passive_api_verification",
+      "layers": {
+        "layer_1_format": {
+          "passed": true,
+          "details": "Generic API key format (discord)",
+          "prefix_check": true,
+          "length_check": true
+        },
+        "layer_2_entropy": {
+          "passed": true,
+          "entropy": 3.2028,
+          "category": "medium"
+        },
+        "layer_3_context": {
+          "passed": true,
+          "is_production": false,
+          "is_test": false
+        }
+      },
+      "risk_level": "medium",
+      "note": "Format validation only - no live API calls made",
+      "confidence": 1.0
+    },
+    "risk_level": "medium",
+    "verified_at": "2026-07-24T11:09:59.331711"
+  }
+]

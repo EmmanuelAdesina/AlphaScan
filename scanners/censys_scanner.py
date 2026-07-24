@@ -21,9 +21,9 @@ class CensysScanner(BaseScanner):
                  query: Optional[str] = None,
                  enabled: bool = True):
         super().__init__("censys", enabled)
-        self.api_id = api_id or CENSYS_API_ID
-        self.api_secret = api_secret or CENSYS_API_SECRET
-        self.query = query or CENSYS_QUERY
+        self.api_id = CENSYS_API_ID if api_id is None else api_id
+        self.api_secret = CENSYS_API_SECRET if api_secret is None else api_secret
+        self.query = CENSYS_QUERY if query is None else query
         self._client = None
 
         # Auto-disable if credentials not configured

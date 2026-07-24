@@ -17,7 +17,7 @@ from api.dependencies import get_engine
 from api.models import (
     ScanRequest, ScanResponse, StatusResponse, KeyInfo, KeyResponse,
     ScanResultInfo, ResultsResponse, ImprovementRequest, ImprovementResponse,
-    MetricsResponse, ErrorResponse,
+    MetricsResponse, ErrorResponse, CommandRequest, CommandResponse,
 )
 from config.settings import API_RATE_LIMIT, get_config_summary
 
@@ -135,8 +135,21 @@ async def root(request: Request):
         "service": "AlphaScan",
         "version": "0.5.0",
         "health": "ok",
-        "endpoints": ["/health", "/config", "/status", "/scan", "/results", "/keys", "/improvement", "/metrics"],
+        "endpoints": ["/health", "/config", "/discord/command", "/status", "/scan", "/results", "/keys", "/improvement", "/metrics"],
     }
+
+
+@app.post("/discord/command", response_model=CommandResponse, tags=["discord"])
+@limiter.limit("5/minute")
+async def discord_command(request: Request, command_request: CommandRequest):
+    """Process an incoming Discord command string."""
+    engine = get_engine()
+    try:
+        result = await asyncio.to_thread(engine.process_command, command_request.command)
+        return result
+    except Exception as e:
+        logger.error(f"Discord command processing failed: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/config", tags=["health"])
@@ -161,18 +174,19 @@ async def get_status(request: Request):
 @app.post("/scan", response_model=ScanResponse, tags=["engine"])
 @limiter.limit("5/minute")
 async def trigger_scan(request: Request, scan_request: ScanRequest):
-    """Trigger an immediate scan cycle."""
+    """Trigger an immediate scan cycle (runs in background)."""
     engine = get_engine()
     scan_id = f"scan-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
     try:
-        result = await asyncio.to_thread(engine.force_scan)
+        # Queue the scan as a background task rather than waiting for it
+        asyncio.create_task(asyncio.to_thread(engine.force_scan))
         return {
-            "status": "success",
-            "message": f"Scan triggered successfully. Cycle {result['cycle']} completed.",
+            "status": "queued",
+            "message": f"Scan queued successfully with ID {scan_id}",
             "scan_id": scan_id,
         }
     except Exception as e:
-        logger.error(f"Scan trigger failed: {e}")
+        logger.error(f"Scan queue failed: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 

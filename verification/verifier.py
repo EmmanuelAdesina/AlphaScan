@@ -20,6 +20,7 @@ from verification.verifiers.ssh_verifier import SSHVerifier
 from verification.verifiers.crypto_verifier import CryptoVerifier
 from verification.verifiers.api_verifier import APIVerifier
 from config.patterns import calculate_entropy, get_entropy_category, RANK_SSH, RANK_DEV
+from config.settings import MIN_VERIFICATION_CONFIDENCE
 
 logger = logging.getLogger(__name__)
 
@@ -87,10 +88,21 @@ class SecretVerifier:
 
         if verifier is None:
             # Unknown key type - use generic verification
-            return self._generic_verify(key_data)
+            verification_result = self._generic_verify(key_data)
+        else:
+            # Run the specialized verifier
+            verification_result = verifier.verify(key_data)
 
-        # Run the specialized verifier
-        verification_result = verifier.verify(key_data)
+        # Estimate confidence for the verification result
+        confidence = self._estimate_confidence(verification_result)
+        verification_result["confidence"] = confidence
+
+        if confidence < MIN_VERIFICATION_CONFIDENCE:
+            verification_result["verified"] = False
+            verification_result["note"] = (
+                f"{verification_result.get('note', '')} "
+                f"(rejected by confidence threshold {MIN_VERIFICATION_CONFIDENCE})"
+            ).strip()
 
         # Apply rank adjustment based on context
         base_rank = key_data.get("rank", RANK_DEV)
@@ -114,11 +126,25 @@ class SecretVerifier:
         result = dict(key_data)  # Copy original data
         result["verified"] = verification_result["verified"]
         result["rank"] = adjusted_rank
+        result["confidence"] = confidence
         result["verification"] = verification_result
         result["risk_level"] = verification_result.get("risk_level", "unknown")
         result["verified_at"] = datetime.utcnow().isoformat()
 
         return result
+
+    def _estimate_confidence(self, verification_result: Dict) -> float:
+        """Estimate a confidence score for a verification result."""
+        layers = verification_result.get("layers", {})
+        format_passed = layers.get("layer_1_format", {}).get("passed", False)
+        entropy_passed = layers.get("layer_2_entropy", {}).get("passed", False)
+        context_passed = layers.get("layer_3_context", {}).get("passed", False)
+
+        score = 0.0
+        score += 0.50 if format_passed else 0.0
+        score += 0.35 if entropy_passed else 0.0
+        score += 0.15 if context_passed else 0.0
+        return round(min(1.0, score), 2)
 
     def verify_batch(self, keys: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
         """

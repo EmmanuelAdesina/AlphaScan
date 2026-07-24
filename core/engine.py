@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 from config.settings import (
     SCAN_INTERVAL, DEBUG, AUTONOMOUS_MODE, AUTO_PUSH_GITHUB,
-    ALLOW_AUTO_RESTART, AUTO_PIVOT_THRESHOLD,
+    ALLOW_AUTO_RESTART, AUTO_PIVOT_THRESHOLD, MIN_AUTO_DECISION_CONFIDENCE,
     ENABLE_SSH_DETECTION, ENABLE_CRYPTO_DETECTION, ENABLE_API_DETECTION,
     VERIFICATION_TIMEOUT, CEO_MODE, KNOWLEDGE_JSON_PATH,
 )
@@ -103,13 +103,19 @@ class AlphaScanEngine:
             scanner_manager=self.scanner_manager,
             code_generator=None,  # Will be set lazily
         )
-        self.command_handler = DiscordCommandHandler(
+
+        # v0.5: Autonomous system
+        self.env_manager = EnvManager(notifier=self.notifier)
+        self.strategy_analyzer = StrategyAnalyzer(pivot_threshold=AUTO_PIVOT_THRESHOLD)
+        self.git_manager = GitManager(auto_push=AUTO_PUSH_GITHUB)
+        self.decision_logger = DecisionLogger()
+
+        self.command_handler = CommandHandler(
             engine=self,
-            ceo_controller=self.ceo_controller,
-            knowledge_base=self.ceo_knowledge_base,
-            decision_executor=self.decision_executor,
             notifier=self.notifier,
-            scanner_manager=self.scanner_manager,
+            git_manager=self.git_manager,
+            env_manager=self.env_manager,
+            decision_logger=self.decision_logger,
         )
 
         # v0.5: Verification system
@@ -326,7 +332,7 @@ class AlphaScanEngine:
                 )
 
                 # Auto-apply if confidence is high enough
-                if pivot_proposal.get("confidence", 0) > 0.9:
+                if pivot_proposal.get("confidence", 0) >= MIN_AUTO_DECISION_CONFIDENCE:
                     self.strategy_analyzer.apply_pivot(pivot_proposal)
                     self.decision_logger.update_decision(decision_id, "approved")
                     self.notifier.send_info(
@@ -455,19 +461,6 @@ class AlphaScanEngine:
 
     def get_results(self) -> List[Dict]:
         """Get recent scan results summary."""
-        return [
-            {
-                "cycle": self.state.cycle,
-                "keys_found": len(self._all_keys),
-                "timestamp": self.state.last_scan_time,
-                "scanner_stats": self.scanner_manager.get_scanner_stats(),
-            }
-        ]
-
-    def process_command(self, command: str) -> Dict:
-        """Process a Discord command."""
-        return self.command_handler.process_command(command)
-
         return [
             {
                 "cycle": self.state.cycle,

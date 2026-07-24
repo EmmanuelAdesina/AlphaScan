@@ -103,6 +103,13 @@ class FakeEngine:
     def get_keys(self):
         return []
 
+    def process_command(self, command: str):
+        return {
+            "success": True,
+            "message": f"Command received: {command}",
+            "data": {"command": command},
+        }
+
 
 @pytest.fixture(autouse=True)
 def fake_engine(monkeypatch):
@@ -136,6 +143,15 @@ def test_config_endpoint_returns_configuration_summary():
     assert response.status_code == 200
     assert response.json()["scan_interval"] == 300
     assert "autonomous_mode" in response.json()
+
+
+def test_discord_command_endpoint_processes_commands():
+    with TestClient(routes.app) as client:
+        response = client.post("/discord/command", json={"command": "!status"})
+
+    assert response.status_code == 200
+    assert "success" in response.json()
+    assert "message" in response.json()
 
 
 def test_scan_endpoint_triggers_engine_scan():

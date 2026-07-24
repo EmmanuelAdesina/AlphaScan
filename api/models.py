@@ -86,6 +86,18 @@ class ImprovementResponse(BaseModel):
     filename: Optional[str] = None
 
 
+class CommandRequest(BaseModel):
+    """Request body for Discord command execution."""
+    command: str = Field(..., description="Discord-style command string, e.g. !status")
+
+
+class CommandResponse(BaseModel):
+    """Response from Discord command execution."""
+    success: bool
+    message: str
+    data: Optional[Any] = None
+
+
 class MetricsResponse(BaseModel):
     """Response containing self-improvement metrics."""
     metrics: Dict[str, Any]

@@ -49,7 +49,8 @@ NVIDIA_MODEL: str = os.getenv("NVIDIA_MODEL", "nvidia/llama-2-70b")
 SCAN_INTERVAL: int = _get_int("SCAN_INTERVAL", 300)
 MAX_KEYS_PER_REPORT: int = _get_int("MAX_KEYS_PER_REPORT", 50)
 DEBUG: bool = _get_bool("DEBUG", False)
-LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
+LOG_LEVEL: str = os.getenv("LOG_LEVEL", "WARNING").upper()
+DISCORD_BOT_TOKEN: str = os.getenv("DISCORD_BOT_TOKEN", "")
 
 # ── Paths ─────────────────────────────────────────────────────────────────
 DATA_DIR: Path = BASE_DIR / "data"
@@ -80,8 +81,22 @@ KEY_LOG_PREVIEW_LENGTH: int = 6
 # Rate limiting
 API_RATE_LIMIT: str = os.getenv("API_RATE_LIMIT", "100/minute")
 
+# ── False Positive / Local Scan Controls ────────────────────────────────────
+EXCLUDE_LOCAL_API_DOCS: bool = _get_bool("EXCLUDE_LOCAL_API_DOCS", True)
+MIN_VERIFICATION_CONFIDENCE: float = _get_float("MIN_VERIFICATION_CONFIDENCE", 0.90)
+MIN_AUTO_DECISION_CONFIDENCE: float = _get_float("MIN_AUTO_DECISION_CONFIDENCE", 0.90)
+
+# ── Signal-Only / Quiet Mode (v0.5.1) ───────────────────────────────────────
+# When True, the entire run is silent except for the final report and fatal
+# errors.  Equivalent to --quiet on the command line.
+QUIET_MODE: bool = _get_bool("QUIET_MODE", True)
+# Minimum confidence for a match to be printed/reported (suppresses noise).
+MIN_CONFIDENCE: float = _get_float("MIN_CONFIDENCE", 0.85)
+# Disable autonomous scanner creation entirely unless explicitly enabled.
+AUTO_GENERATE_SCANNERS: bool = _get_bool("AUTO_GENERATE_SCANNERS", False)
+
 # ── v0.5 Autonomous Mode ───────────────────────────────────────────────────
-AUTONOMOUS_MODE: bool = _get_bool("AUTONOMOUS_MODE", True)
+AUTONOMOUS_MODE: bool = _get_bool("AUTONOMOUS_MODE", False)
 AUTO_PUSH_GITHUB: bool = _get_bool("AUTO_PUSH_GITHUB", True)
 ALLOW_AUTO_RESTART: bool = _get_bool("ALLOW_AUTO_RESTART", True)
 AUTO_PIVOT_THRESHOLD: float = _get_float("AUTO_PIVOT_THRESHOLD", 0.15)
@@ -122,6 +137,9 @@ def get_config_summary() -> dict:
         "auto_push_github": AUTO_PUSH_GITHUB,
         "allow_auto_restart": ALLOW_AUTO_RESTART,
         "auto_pivot_threshold": AUTO_PIVOT_THRESHOLD,
+        "min_verification_confidence": MIN_VERIFICATION_CONFIDENCE,
+        "min_auto_decision_confidence": MIN_AUTO_DECISION_CONFIDENCE,
+        "exclude_local_api_docs": EXCLUDE_LOCAL_API_DOCS,
         "enable_ssh_detection": ENABLE_SSH_DETECTION,
         "enable_crypto_detection": ENABLE_CRYPTO_DETECTION,
         "enable_api_detection": ENABLE_API_DETECTION,

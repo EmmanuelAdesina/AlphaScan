@@ -64,9 +64,10 @@ class TestCensysScanner:
 
     def test_censys_disabled_without_credentials(self):
         """Test Censys scanner is disabled without credentials."""
-        scanner = CensysScanner()
+        scanner = CensysScanner(api_id="", api_secret="")
         assert scanner.api_id == ""
         assert scanner.api_secret == ""
+        assert scanner.enabled is False
 
     @patch("scanners.censys_scanner.CensysScanner._get_client")
     def test_censys_scan_mocked(self, mock_client):
@@ -91,8 +92,9 @@ class TestGitHubScanner:
 
     def test_github_disabled_without_token(self):
         """Test GitHub scanner is disabled without token."""
-        scanner = GitHubScanner()
+        scanner = GitHubScanner(token="")
         assert scanner.token == ""
+        assert scanner.enabled is False
 
 
 class TestPortScanner:
@@ -114,13 +116,16 @@ class TestPortScanner:
         assert result.scanner_name == "port"
         assert len(result.raw_data) > 0
 
+    @patch("scanners.port_scanner.PortScanner._scan_ports")
     @patch("scanners.port_scanner.PortScanner._check_http")
-    def test_port_check_http_mocked(self, mock_http):
+    def test_port_check_http_mocked(self, mock_http, mock_scan):
         """Test HTTP check with mocked response."""
+        mock_scan.return_value = {8000: "FastAPI/uvicorn"}
         mock_http.return_value = "test response"
         scanner = PortScanner(target="localhost")
         result = scanner.scan()
         assert len(result.raw_data) > 0
+        assert any("test response" in item for item in result.raw_data)
 
 
 class TestServiceScanner:
@@ -131,18 +136,30 @@ class TestServiceScanner:
         scanner = ServiceScanner()
         assert scanner.name == "service"
 
-    @patch("scanners.port_scanner.requests.get")
-    def test_service_scan_mocked(self, mock_get):
-        """Test service scan with mocked requests."""
+    @patch("scanners.port_scanner.get_http_client")
+    def test_service_scan_mocked(self, mock_get_client):
+        """Test service scan with mocked HTTP client."""
+        mock_http = Mock()
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = "service info"
-        mock_get.return_value = mock_response
+        mock_http.get.return_value = mock_response
+        mock_get_client.return_value = mock_http
 
         scanner = ServiceScanner()
         result = scanner.scan()
         assert result.scanner_name == "service"
         assert len(result.raw_data) > 0
+
+    def test_service_endpoints_exclude_local_api_docs(self, monkeypatch):
+        """Test local API docs are excluded when configured."""
+        from config.settings import EXCLUDE_LOCAL_API_DOCS
+        monkeypatch.setattr("config.settings.EXCLUDE_LOCAL_API_DOCS", True)
+
+        scanner = ServiceScanner()
+        endpoints = scanner._get_service_endpoints()
+        assert "fastapi" in endpoints
+        assert endpoints["fastapi"] == ["http://localhost:8000/"]
 
 
 class TestScannerManager:

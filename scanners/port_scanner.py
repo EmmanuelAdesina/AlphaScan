@@ -8,6 +8,7 @@ from typing import List, Dict, Optional, Set
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from scanners.base_scanner import BaseScanner, ScanResult
 from utils.http_client import get_http_client
+from config.settings import EXCLUDE_LOCAL_API_DOCS
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +121,10 @@ class PortScanner(BaseScanner):
             return False
 
     def _check_http(self, port: int) -> Optional[str]:
-        """Try to get HTTP response from an open port."""
+        """Try to get HTTP response from an open port while avoiding localhost-only probes."""
+        if self.target in {"localhost", "127.0.0.1", "0.0.0.0"}:
+            return None
+
         urls_to_try = [
             f"http://{self.target}:{port}/",
             f"http://{self.target}:{port}/.env",
@@ -147,16 +151,16 @@ class ServiceScanner(BaseScanner):
 
     SERVICE_ENDPOINTS: Dict[str, List[str]] = {
         "ollama": [
-            "http://localhost:11434/api/tags",
-            "http://localhost:11434/api/show",
+            "http://127.0.0.1:11434/api/tags",
+            "http://127.0.0.1:11434/api/show",
         ],
         "huggingface": [
-            "http://localhost:7860/",
-            "http://localhost:7860/api/pipelines",
+            "http://127.0.0.1:7860/",
+            "http://127.0.0.1:7860/api/pipelines",
         ],
         "fastapi": [
-            "http://localhost:8000/docs",
-            "http://localhost:8000/openapi.json",
+            "http://127.0.0.1:8000/docs",
+            "http://127.0.0.1:8000/openapi.json",
         ],
     }
 
@@ -169,7 +173,7 @@ class ServiceScanner(BaseScanner):
         raw_data: List[str] = []
         metadata: Dict = {"services_checked": 0, "services_found": []}
 
-        for service_name, endpoints in self.SERVICE_ENDPOINTS.items():
+        for service_name, endpoints in self._get_service_endpoints().items():
             for endpoint in endpoints:
                 try:
                     response = self._http.get(endpoint, timeout=5)
@@ -190,3 +194,10 @@ class ServiceScanner(BaseScanner):
             raw_data=raw_data,
             metadata=metadata,
         )
+
+    def _get_service_endpoints(self) -> Dict[str, List[str]]:
+        """Return the configured service endpoints, excluding local API docs if requested."""
+        endpoints = dict(self.SERVICE_ENDPOINTS)
+        if EXCLUDE_LOCAL_API_DOCS and "fastapi" in endpoints:
+            endpoints["fastapi"] = ["http://127.0.0.1:8000/"]
+        return endpoints

@@ -48,3 +48,10 @@ pyjwt==2.8.0
 # Async Support
 aiofiles==24.1.0          # ← fixed version
 asyncio-throttle==1.0.2
+
+# Discord Bot
+discord.py==2.3.2
+aiohttp==3.9.1
+
+# System Monitoring
+psutil==5.9.6
