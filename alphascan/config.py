@@ -11,7 +11,7 @@ load_dotenv()
 # ── Required API Credentials ──────────────────────────────────────
 CENSYS_PAT = os.getenv("CENSYS_PAT", "")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
 ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY", "")
 
@@ -39,7 +39,7 @@ def check_config():
     return {
         "censys": bool(CENSYS_PAT),
         "github": bool(GITHUB_TOKEN),
-        "groq": bool(GROQ_API_KEY),
+        "mistral": bool(MISTRAL_API_KEY),
         "discord": bool(DISCORD_WEBHOOK_URL),
         "etherscan": bool(ETHERSCAN_API_KEY),
     }

@@ -22,7 +22,7 @@ p("=" * 70)
 p()
 
 # ── 1. CENSYS ──
-p("[1] CENSYS Platform API v3 (PAT auth)")
+p("[1] CENSYS Platform API v2 (PAT auth)")
 pat = os.getenv("CENSYS_PAT")
 p(f"  PAT: {pat[:8]}...{pat[-4:]} (len={len(pat)})")
 
@@ -62,18 +62,22 @@ except Exception as e:
     p(f"  ERROR: {e}")
 p()
 
-# ── 3. GROQ ──
-p("[3] GROQ")
-gk = os.getenv("GROQ_API_KEY")
+# ── 3. MISTRAL ──
+p("[3] MISTRAL AI")
+mk = os.getenv("MISTRAL_API_KEY")
 try:
-    r = requests.post("https://api.groq.com/openai/v1/chat/completions",
-        headers={"Authorization": f"Bearer {gk}", "Content-Type": "application/json"},
-        json={"model": "llama-3.3-70b-versatile", "messages": [{"role": "user", "content": "Say OK"}],
-              "max_tokens": 5, "temperature": 0.1}, timeout=15)
-    if r.status_code == 200:
-        p(f"  Status: 200 OK - Response: {r.json()['choices'][0]['message']['content'].strip()}")
+    from mistralai import Mistral
+    client = Mistral(api_key=mk)
+    response = client.chat.complete(
+        model="mistral-small-latest",
+        messages=[{"role": "user", "content": "Say just the word OK"}],
+        temperature=0.1,
+        max_tokens=5,
+    )
+    if response.choices:
+        p(f"  Status: OK - Response: {response.choices[0].message.content.strip()}")
     else:
-        p(f"  Status: {r.status_code} - {r.text[:150]}")
+        p("  Status: No response")
 except Exception as e:
     p(f"  ERROR: {e}")
 p()

@@ -84,25 +84,25 @@ else:
         test("GitHub", False, str(e)[:100])
 logprint("")
 
-# ── 3. GROQ ──
-logprint("[3/5] Groq LLM API")
-gk = os.getenv("GROQ_API_KEY")
-if not gk:
-    test("Groq", False, "API key not configured in .env")
+# ── 3. MISTRAL ──
+logprint("[3/5] Mistral AI API")
+mk = os.getenv("MISTRAL_API_KEY")
+if not mk:
+    test("Mistral", False, "MISTRAL_API_KEY not configured in .env")
 else:
     try:
-        import groq
-        client = groq.Groq(api_key=gk)
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+        from mistralai import Mistral
+        client = Mistral(api_key=mk)
+        response = client.chat.complete(
+            model="mistral-small-latest",
             messages=[{"role": "user", "content": "Reply with just the word OK"}],
             temperature=0.1,
             max_tokens=10,
         )
         content = response.choices[0].message.content.strip()
-        test("Groq", True, f"Response: {content}")
+        test("Mistral", True, f"Response: {content}")
     except Exception as e:
-        test("Groq", False, str(e)[:150])
+        test("Mistral", False, str(e)[:150])
 logprint("")
 
 # ── 4. DISCORD ──

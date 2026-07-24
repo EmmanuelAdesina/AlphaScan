@@ -1,7 +1,7 @@
 """
-AlphaScan Groq LLM Parser.
-Uses Groq API to extract API keys, secrets, and credentials from raw text.
-No classes. No fallback chains. Just Groq + regex fallback.
+AlphaScan Mistral LLM Parser.
+Uses Mistral API to extract API keys, secrets, and credentials from raw text.
+No classes. No fallback chains. Just Mistral + regex fallback.
 """
 import json
 import logging
@@ -9,7 +9,7 @@ import re
 import time
 from typing import Dict, List, Optional
 
-from alphascan.config import GROQ_API_KEY
+from alphascan.config import MISTRAL_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -102,14 +102,14 @@ def extract_with_regex(text: str) -> List[Dict]:
     return found
 
 
-def extract_with_groq(texts: List[str]) -> List[Dict]:
+def extract_with_mistral(texts: List[str]) -> List[Dict]:
     """
-    Use Groq API (mixtral-8x7b) to extract keys from raw text.
+    Use Mistral API to extract keys from raw text.
     Returns list of extracted key dicts.
     Falls back to regex on failure.
     """
-    if not GROQ_API_KEY:
-        logger.info("No Groq API key configured, using regex fallback")
+    if not MISTRAL_API_KEY:
+        logger.info("No Mistral API key configured, using regex fallback")
         return _extract_regex_batch(texts)
 
     if not texts:
@@ -120,28 +120,28 @@ def extract_with_groq(texts: List[str]) -> List[Dict]:
 
     for text in texts:
         try:
-            keys = _groq_extract_single(text)
+            keys = _mistral_extract_single(text)
             if keys:
                 all_keys.extend(keys)
         except Exception as e:
-            logger.debug(f"Groq extraction failed for segment: {e}")
+            logger.debug(f"Mistral extraction failed for segment: {e}")
             # Fallback to regex for this segment
             all_keys.extend(extract_with_regex(text))
 
     elapsed = time.time() - start
-    logger.info(f"Groq extraction: {len(all_keys)} keys in {elapsed:.2f}s")
+    logger.info(f"Mistral extraction: {len(all_keys)} keys in {elapsed:.2f}s")
     return all_keys
 
 
-def _groq_extract_single(text: str) -> Optional[List[Dict]]:
+def _mistral_extract_single(text: str) -> Optional[List[Dict]]:
     """
-    Call Groq API to extract keys from a single text.
-    Uses mixtral-8x7b-32768 for its large context window.
+    Call Mistral API to extract keys from a single text.
+    Uses mistral-small-latest for its speed and cost efficiency.
     """
     if len(text) < 20:
         return None
 
-    # Truncate if necessary (Groq has 32k limit, but we keep it reasonable)
+    # Truncate if necessary (keep it reasonable for API limits)
     if len(text) > 24000:
         text = text[:24000]
 
@@ -163,10 +163,10 @@ TEXT TO ANALYZE:
 JSON OUTPUT:"""
 
     try:
-        import groq
-        client = groq.Groq(api_key=GROQ_API_KEY)
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+        from mistralai import Mistral
+        client = Mistral(api_key=MISTRAL_API_KEY)
+        response = client.chat.complete(
+            model="mistral-small-latest",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1,
             max_tokens=2000,
@@ -179,13 +179,13 @@ JSON OUTPUT:"""
             keys = json.loads(json_match.group(0))
             # Add source field
             for k in keys:
-                k["source"] = "groq"
+                k["source"] = "mistral"
             return keys
 
         return None
 
     except Exception as e:
-        logger.debug(f"Groq API call failed: {e}")
+        logger.debug(f"Mistral API call failed: {e}")
         return None
 
 
@@ -209,10 +209,10 @@ def _extract_regex_batch(texts: List[str]) -> List[Dict]:
 def extract_keys(texts: List[str]) -> List[Dict]:
     """
     Main entry point: extract keys from raw texts.
-    Tries Groq first, falls back to regex.
+    Tries Mistral first, falls back to regex.
     Deduplicates results.
     """
-    keys = extract_with_groq(texts)
+    keys = extract_with_mistral(texts)
     if not keys:
         keys = _extract_regex_batch(texts)
 

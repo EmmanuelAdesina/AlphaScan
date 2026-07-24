@@ -6,7 +6,7 @@
 
 [2/5] GitHub Code Search API
 
-[3/5] Groq LLM API
+[3/5] Mistral AI API
 
 [4/5] Discord Webhook
 
@@ -16,11 +16,11 @@
   RESULTS SUMMARY
 ============================================================
   [FAIL] Censys          FAILED  Resource not found: https://api.platform.censys.io/v3/global/asset/host/8.8.8.8/hosts/search
-  [PASS] GitHub          OK      Status 200, 39,104 total results
-  [FAIL] Groq            FAILED  Client.__init__() got an unexpected keyword argument 'proxies'
+  [PASS] GitHub          OK      Status 200, 39,912 total results
+  [PASS] Mistral         OK      Response: OK
   [PASS] Discord         OK      Status 204, message delivered
   [PASS] Etherscan       OK      Status 1, balance 8774.4870 ETH
 
-  Total: 3/5 passed (2 failed)
+  Total: 4/5 passed (1 failed)
 
 Full results written to: C:\Dev\AlphaScan\alphascan\live_test_results.txt
