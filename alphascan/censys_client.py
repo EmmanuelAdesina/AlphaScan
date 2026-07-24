@@ -4,7 +4,7 @@ Uses Personal Access Token (PAT) authentication.
 No legacy API ID/Secret. No basic auth.
 
 Censys Platform API v3 docs:
-    https://docs.censys.io/api/v3/
+    https://api.platform.censys.io/v3/global/asset/host/8.8.8.8
 """
 import logging
 import time
@@ -16,7 +16,7 @@ from alphascan.config import CENSYS_PAT
 
 logger = logging.getLogger(__name__)
 
-_BASE_URL = "https://search.censys.io/api/v2"
+_BASE_URL = "https://api.platform.censys.io/v3/global/asset/host/8.8.8.8"
 _MAX_RETRIES = 3
 _RETRY_DELAY_SEC = 2.0  # doubles each retry
 

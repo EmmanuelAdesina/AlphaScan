@@ -2,7 +2,7 @@
   AlphaScan - Live Endpoint Verification
 ============================================================
 
-[1/5] CENSYS Platform API v3
+[1/5] CENSYS Platform API
 
 [2/5] GitHub Code Search API
 
@@ -15,12 +15,12 @@
 ============================================================
   RESULTS SUMMARY
 ============================================================
-  [FAIL] Censys          FAILED  Status 401: PAT is invalid or expired
-  [PASS] GitHub          OK      Status 200, 39,912 total results
+  [FAIL] Censys          FAILED  Resource not found: https://api.platform.censys.io/v3/global/asset/host/8.8.8.8/hosts/search
+  [PASS] GitHub          OK      Status 200, 39,104 total results
   [FAIL] Groq            FAILED  Client.__init__() got an unexpected keyword argument 'proxies'
   [PASS] Discord         OK      Status 204, message delivered
   [PASS] Etherscan       OK      Status 1, balance 8774.4870 ETH
 
   Total: 3/5 passed (2 failed)
 
-Full results written to: c:\Dev\AlphaScan\alphascan\live_test_results.txt
+Full results written to: C:\Dev\AlphaScan\alphascan\live_test_results.txt
