@@ -173,8 +173,9 @@ def check_etherscan_balance(address: str) -> Optional[Dict]:
         return None
 
     try:
-        url = "https://api.etherscan.io/api"
+        url = "https://api.etherscan.io/v2/api"
         params = {
+            "chainid": 1,
             "module": "account",
             "action": "balance",
             "address": address,

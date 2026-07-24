@@ -80,19 +80,19 @@ def main_loop(once: bool = False, verbose: bool = False, no_report: bool = False
     config_status = check_config()
     print("\n=== AlphaScan Configuration ===")
     for service, configured in config_status.items():
-        status = "✅" if configured else "❌"
+        status = "[OK]" if configured else "[!!]"
         print(f"  {status} {service}: {'configured' if configured else 'not configured'}")
     print()
 
     if not any(config_status.values()):
-        print("❌ No services configured. Create a .env file with your API keys.")
+        print("[!!] No services configured. Create a .env file with your API keys.")
         print("   See .env.example for required keys.")
         sys.exit(1)
 
     # Notify Discord we're online
     configured_services = [s for s, c in config_status.items() if c]
     send_info(
-        f"AlphaScan initialized — {', '.join(configured_services)} configured"
+        f"AlphaScan initialized - {', '.join(configured_services)} configured"
         "\nSystem ready. Scanning cycle starts now."
     )
 
@@ -101,13 +101,13 @@ def main_loop(once: bool = False, verbose: bool = False, no_report: bool = False
         while True:
             cycle += 1
             print(f"\n{'='*50}")
-            print(f"  Cycle #{cycle} — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"  Cycle #{cycle} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"{'='*50}")
 
             summary = run_scan_cycle(cycle)
 
             # Print summary
-            print(f"\n  📊 Summary:")
+            print(f"\n  [SUMMARY]")
             print(f"     Raw segments: {summary['raw_segments']}")
             print(f"     Keys extracted: {summary['extracted']}")
             print(f"     Valid: {summary['valid']}  Invalid: {summary['invalid']}")
@@ -117,7 +117,7 @@ def main_loop(once: bool = False, verbose: bool = False, no_report: bool = False
             if summary["validated_keys"]:
                 valid = [k for k in summary["validated_keys"] if k.get("valid")]
                 if valid:
-                    print(f"\n  🔑 Top findings (rank 0=critical, 10=lowest):")
+                    print(f"\n  [TOP FINDINGS] (rank 0=critical, 10=lowest):")
                     for key in sorted(valid, key=lambda k: k.get("rank", 10))[:5]:
                         rank = key.get("rank", 10)
                         key_type = key.get("type", "unknown")
@@ -136,17 +136,17 @@ def main_loop(once: bool = False, verbose: bool = False, no_report: bool = False
                     send_key_report(summary["validated_keys"])
 
             if once:
-                print("\n✅ Single scan complete. Exiting.")
+                print("\n[DONE] Single scan complete. Exiting.")
                 break
 
-            print(f"\n  💤 Sleeping {SCAN_INTERVAL}s until next cycle...")
+            print(f"\n  Sleeping {SCAN_INTERVAL}s until next cycle...")
             time.sleep(SCAN_INTERVAL)
 
     except KeyboardInterrupt:
-        print("\n\n🛑 Scan stopped by user.")
+        print("\n\n[STOPPED] Scan stopped by user.")
         send_info("AlphaScan stopped by user.")
     except Exception as e:
-        print(f"\n❌ Fatal error: {e}")
+        print(f"\n[ERROR] Fatal error: {e}")
         send_error(str(e), "main loop")
         raise
 
@@ -154,7 +154,7 @@ def main_loop(once: bool = False, verbose: bool = False, no_report: bool = False
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="AlphaScan — Secret scanning & key intelligence system"
+        description="AlphaScan - Secret scanning and key intelligence system"
     )
     parser.add_argument(
         "--once", "-1",

@@ -1,0 +1,26 @@
+============================================================
+  AlphaScan - Live Endpoint Verification
+============================================================
+
+[1/5] CENSYS Search API
+
+[2/5] GitHub Code Search API
+
+[3/5] Groq LLM API
+
+[4/5] Discord Webhook
+
+[5/5] Etherscan API
+
+============================================================
+  RESULTS SUMMARY
+============================================================
+  [FAIL] Censys          FAILED  Status 401: You must authenticate with a valid API ID and secret.
+  [PASS] GitHub          OK      Status 200, 39,912 total results
+  [FAIL] Groq            FAILED  Client.__init__() got an unexpected keyword argument 'proxies'
+  [PASS] Discord         OK      Status 204, message delivered
+  [FAIL] Etherscan       FAILED  Status 0: NOTOK -> You are using a deprecated V1 endpoint, switch to Etherscan API V2 using https:/
+
+  Total: 2/5 passed (3 failed)
+
+Full results written to: c:\Dev\AlphaScan\alphascan\live_test_results.txt
