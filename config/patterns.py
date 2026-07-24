@@ -94,7 +94,7 @@ API_PATTERNS: List[Tuple[str, str, str, str, int]] = [
     # Google / GCP
     ("google", r"AIza[0-9A-Za-z_-]{35}", "Google API key", "AIza", RANK_CLOUD),
     # Azure
-    ("azure", r"(?<![a-zA-Z0-9])[a-zA-Z0-9]{32}(?![a-zA-Z0-9])", "Azure API key", "[redacted]", RANK_CLOUD),
+    ("azure", r"(?<!\S)[A-Za-z0-9]{32}(?!\S)", "Azure API key", "[redacted]", RANK_CLOUD),
     # GitHub
     ("github", r"gh[pousr]_[a-zA-Z0-9]{36}", "GitHub token", "ghp_", RANK_DEV),
     # GitLab

@@ -77,26 +77,39 @@ class AlphaScanEngine:
         self.state = EngineState()
         self.state.uptime_start = datetime.utcnow().isoformat()
 
+        # Internal runtime state
+        self._lock = threading.Lock()
+        self._all_keys: List[Dict] = []
+        self._verified_keys: List[Dict] = []
+        self._improver = None
+
         # v0.5: CEO Mode - knowledge base, controller, executor
         self.ceo_knowledge_base = KnowledgeBase(
             json_path=str(KNOWLEDGE_JSON_PATH)
         )
+        self.notifier = DiscordNotifier()
         self.ceo_controller = CeoController(
             knowledge_base=self.ceo_knowledge_base,
-            notifier=DiscordNotifier(),
-        )
-        self.decision_executor = DecisionExecutor(
-            knowledge_base=self.ceo_knowledge_base,
             notifier=self.notifier,
-            scanner_manager=None,  # Will be set after initialization
-            code_generator=None,  # Will be set lazily
         )
-
-        # Initialize components
         self.scanner_manager = ScannerManager()
         self.parser = GroqParser()
         self.validator = KeyValidator()
-        self.notifier = DiscordNotifier()
+
+        self.decision_executor = DecisionExecutor(
+            knowledge_base=self.ceo_knowledge_base,
+            notifier=self.notifier,
+            scanner_manager=self.scanner_manager,
+            code_generator=None,
+        )
+        self.command_handler = DiscordCommandHandler(
+            engine=self,
+            ceo_controller=self.ceo_controller,
+            knowledge_base=self.ceo_knowledge_base,
+            decision_executor=self.decision_executor,
+            notifier=self.notifier,
+            scanner_manager=self.scanner_manager,
+        )
 
         # v0.5: Verification system
         self.verifier = SecretVerifier()
@@ -106,7 +119,8 @@ class AlphaScanEngine:
         # v0.5: Autonomous system
         self.env_manager = EnvManager(notifier=self.notifier)
         self.strategy_analyzer = StrategyAnalyzer(pivot_threshold=AUTO_PIVOT_THRESHOLD)
-        self.git_manager = GitManager(auto_push=AUTO)
+        self.git_manager = GitManager(auto_push=AUTO_PUSH_GITHUB)
+        self._init_scanners()
 
     def _init_scanners(self) -> None:
         """Initialize and register all scanners."""
