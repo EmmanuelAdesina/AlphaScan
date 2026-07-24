@@ -4,7 +4,7 @@ Uses Personal Access Token (PAT) authentication.
 No legacy API ID/Secret. No basic auth.
 
 Censys Platform API v3 docs:
-    https://api.platform.censys.io/v3/global/asset/host/8.8.8.8
+    _BASE_URL = "https://api.platform.censys.io/v3"
 """
 import logging
 import time
@@ -16,7 +16,7 @@ from alphascan.config import CENSYS_PAT
 
 logger = logging.getLogger(__name__)
 
-_BASE_URL = "https://api.platform.censys.io/v3/global/asset/host/8.8.8.8"
+_BASE_URL = "https://api.platform.censys.io/v3"
 _MAX_RETRIES = 3
 _RETRY_DELAY_SEC = 2.0  # doubles each retry
 
@@ -53,7 +53,7 @@ class CensysClient:
 
     def get_host(self, ip: str) -> Optional[Dict]:
         """Get detailed information about a specific host."""
-        url = f"{_BASE_URL}/hosts/{ip}"
+        url = f"{_BASE_URL}/global/asset/host/{ip}"
         try:
             return self._request("GET", url)
         except CensysNotFound:

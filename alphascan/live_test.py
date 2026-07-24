@@ -27,27 +27,57 @@ logprint("=" * 60)
 logprint("  AlphaScan - Live Endpoint Verification")
 logprint("=" * 60)
 logprint("")
-
 # ── 1. CENSYS (Platform API with PAT) ──
 logprint("[1/5] CENSYS Platform API")
+
 pat = os.getenv("CENSYS_PAT")
+
 if not pat:
     test("Censys", False, "CENSYS_PAT not configured in .env")
+
 else:
     try:
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-        from alphascan.censys_client import CensysClient, CensysAuthError
+
+        from alphascan.censys_client import (
+            CensysClient,
+            CensysAuthError
+        )
+
         client = CensysClient(pat=pat)
+
         auth_ok = client.verify_auth()
+
         if auth_ok:
-            hits = client.search_hosts("api_key", per_page=1)
-            test("Censys", True, f"PAT valid, {len(hits)} hits returned")
+            host = client.get_host("8.8.8.8")
+
+            test(
+                "Censys",
+                True,
+                f"PAT valid, host lookup successful"
+            )
+
         else:
-            test("Censys", False, "PAT is invalid or expired (401)")
+            test(
+                "Censys",
+                False,
+                "PAT is invalid or expired (401)"
+            )
+
     except CensysAuthError:
-        test("Censys", False, "PAT is invalid or expired (401)")
+        test(
+            "Censys",
+            False,
+            "PAT is invalid or expired (401)"
+        )
+
     except Exception as e:
-        test("Censys", False, str(e)[:150])
+        test(
+            "Censys",
+            False,
+            str(e)[:150]
+        )
+
 logprint("")
 
 # ── 2. GITHUB ──

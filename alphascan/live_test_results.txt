@@ -15,12 +15,12 @@
 ============================================================
   RESULTS SUMMARY
 ============================================================
-  [FAIL] Censys          FAILED  Resource not found: https://api.platform.censys.io/v3/global/asset/host/8.8.8.8/hosts/search
+  [PASS] Censys          OK      PAT valid, host lookup successful
   [PASS] GitHub          OK      Status 200, 39,912 total results
   [PASS] Mistral         OK      Response: OK
   [PASS] Discord         OK      Status 204, message delivered
   [PASS] Etherscan       OK      Status 1, balance 8774.4870 ETH
 
-  Total: 4/5 passed (1 failed)
+  Total: 5/5 passed (0 failed)
 
 Full results written to: C:\Dev\AlphaScan\alphascan\live_test_results.txt
