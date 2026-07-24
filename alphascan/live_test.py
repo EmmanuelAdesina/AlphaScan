@@ -28,26 +28,24 @@ logprint("  AlphaScan - Live Endpoint Verification")
 logprint("=" * 60)
 logprint("")
 
-# ── 1. CENSYS ──
-logprint("[1/5] CENSYS Search API")
-cid = os.getenv("CENSYS_API_ID")
-csec = os.getenv("CENSYS_API_SECRET")
-if not cid or not csec:
-    test("Censys", False, "API credentials not configured in .env")
+# ── 1. CENSYS (Platform API with PAT) ──
+logprint("[1/5] CENSYS Platform API")
+pat = os.getenv("CENSYS_PAT")
+if not pat:
+    test("Censys", False, "CENSYS_PAT not configured in .env")
 else:
     try:
-        r = requests.get(
-            "https://search.censys.io/api/v2/hosts/search",
-            auth=(cid, csec),
-            params={"q": "api_key", "per_page": 1},
-            timeout=15,
-        )
-        if r.status_code == 200:
-            hits = r.json().get("result", {}).get("hits", [])
-            test("Censys", True, f"Status 200, {len(hits)} hits")
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+        from alphascan.censys_client import CensysClient, CensysAuthError
+        client = CensysClient(pat=pat)
+        auth_ok = client.verify_auth()
+        if auth_ok:
+            hits = client.search_hosts("api_key", per_page=1)
+            test("Censys", True, f"PAT valid, {len(hits)} hits returned")
         else:
-            err = r.json().get("error", r.text[:100])
-            test("Censys", False, f"Status {r.status_code}: {err}")
+            test("Censys", False, "PAT is invalid or expired (401)")
+    except CensysAuthError:
+        test("Censys", False, "PAT is invalid or expired (401)")
     except Exception as e:
         test("Censys", False, str(e)[:150])
 logprint("")
@@ -96,7 +94,7 @@ else:
         import groq
         client = groq.Groq(api_key=gk)
         response = client.chat.completions.create(
-            model="mixtral-8x7b-32768",
+            model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": "Reply with just the word OK"}],
             temperature=0.1,
             max_tokens=10,
@@ -132,15 +130,16 @@ else:
 logprint("")
 
 # ── 5. ETHERSCAN ──
-logprint("[5/5] Etherscan API")
+logprint("[5/5] Etherscan API (V2)")
 ek = os.getenv("ETHERSCAN_API_KEY")
 if not ek:
     test("Etherscan", False, "API key not configured in .env")
 else:
     try:
         r = requests.get(
-            "https://api.etherscan.io/api",
+            "https://api.etherscan.io/v2/api",
             params={
+                "chainid": 1,
                 "module": "account",
                 "action": "balance",
                 "address": "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",

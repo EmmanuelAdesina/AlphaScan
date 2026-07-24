@@ -16,7 +16,7 @@ from alphascan.config import CENSYS_PAT
 
 logger = logging.getLogger(__name__)
 
-_BASE_URL = "https://api.platform.censys.io/v3"
+_BASE_URL = "https://search.censys.io/api/v2"
 _MAX_RETRIES = 3
 _RETRY_DELAY_SEC = 2.0  # doubles each retry
 

@@ -10,11 +10,12 @@ import time
 from datetime import datetime
 from typing import Dict, List
 
-from alphascan.config import SCAN_INTERVAL, check_config
+from alphascan.config import SCAN_INTERVAL, check_config, CENSYS_PAT
 from alphascan.scanners import run_all_scanners
 from alphascan.parser import extract_keys
 from alphascan.validator import validate_keys
 from alphascan.reporter import send_key_report, send_status, send_error, send_info
+from alphascan.censys_client import CensysClient
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +89,22 @@ def main_loop(once: bool = False, verbose: bool = False, no_report: bool = False
         print("[!!] No services configured. Create a .env file with your API keys.")
         print("   See .env.example for required keys.")
         sys.exit(1)
+
+    # Validate Censys PAT at startup
+    if config_status.get("censys"):
+        print("  [*] Validating Censys PAT...")
+        try:
+            client = CensysClient(pat=CENSYS_PAT)
+            if client.verify_auth():
+                print("  [OK] Censys PAT is valid.")
+            else:
+                print("  [!!] Censys PAT is invalid or expired. Censys scanner will be disabled.")
+                print("       Generate a new PAT at https://console.censys.io/api")
+                config_status["censys"] = False
+        except Exception as e:
+            print(f"  [!!] Censys validation failed: {e}. Censys scanner will be disabled.")
+            config_status["censys"] = False
+    print()
 
     # Notify Discord we're online
     configured_services = [s for s, c in config_status.items() if c]
