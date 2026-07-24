@@ -135,8 +135,19 @@ async def root(request: Request):
         "service": "AlphaScan",
         "version": "0.5.0",
         "health": "ok",
-        "endpoints": ["/health", "/status", "/scan", "/results", "/keys", "/improvement", "/metrics"],
+        "endpoints": ["/health", "/config", "/status", "/scan", "/results", "/keys", "/improvement", "/metrics"],
     }
+
+
+@app.get("/config", tags=["health"])
+@limiter.limit("10/minute")
+async def config_summary(request: Request):
+    """Return a safe configuration summary."""
+    try:
+        return get_config_summary()
+    except Exception as e:
+        logger.error(f"Config summary failed: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/status", response_model=StatusResponse, tags=["engine"])

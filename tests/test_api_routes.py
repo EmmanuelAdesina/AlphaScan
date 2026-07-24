@@ -129,6 +129,15 @@ def test_status_endpoint_returns_engine_status():
     assert response.json()["total_scans"] == 0
 
 
+def test_config_endpoint_returns_configuration_summary():
+    with TestClient(routes.app) as client:
+        response = client.get("/config")
+
+    assert response.status_code == 200
+    assert response.json()["scan_interval"] == 300
+    assert "autonomous_mode" in response.json()
+
+
 def test_scan_endpoint_triggers_engine_scan():
     with TestClient(routes.app) as client:
         response = client.post("/scan", json={"scanners": [], "parallel": True})
