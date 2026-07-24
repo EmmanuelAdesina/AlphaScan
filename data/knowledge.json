@@ -1,0 +1,22 @@
+{
+  "scanners": {
+    "existing": [
+      "add"
+    ],
+    "tried": [
+      "add"
+    ],
+    "failed": [],
+    "consecutive_failures": {}
+  },
+  "code_generated": [],
+  "scan_results": {},
+  "user_commands": [],
+  "ceo_decisions": [],
+  "cycles_without_keys": 0,
+  "last_analysis": null,
+  "total_scans_run": 0,
+  "total_keys_found": 0,
+  "created_at": "2026-07-24T08:20:22.769782",
+  "updated_at": "2026-07-24T08:20:29.619760"
+}

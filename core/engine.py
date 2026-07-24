@@ -77,30 +77,31 @@ class AlphaScanEngine:
         self.state = EngineState()
         self.state.uptime_start = datetime.utcnow().isoformat()
 
-        # Internal runtime state
+        # Runtime state
         self._lock = threading.Lock()
         self._all_keys: List[Dict] = []
         self._verified_keys: List[Dict] = []
         self._improver = None
 
+        # Initialize core components first (needed by CEO/autonomous systems)
+        self.scanner_manager = ScannerManager()
+        self.parser = GroqParser()
+        self.validator = KeyValidator()
+        self.notifier = DiscordNotifier()
+
         # v0.5: CEO Mode - knowledge base, controller, executor
         self.ceo_knowledge_base = KnowledgeBase(
             json_path=str(KNOWLEDGE_JSON_PATH)
         )
-        self.notifier = DiscordNotifier()
         self.ceo_controller = CeoController(
             knowledge_base=self.ceo_knowledge_base,
             notifier=self.notifier,
         )
-        self.scanner_manager = ScannerManager()
-        self.parser = GroqParser()
-        self.validator = KeyValidator()
-
         self.decision_executor = DecisionExecutor(
             knowledge_base=self.ceo_knowledge_base,
             notifier=self.notifier,
             scanner_manager=self.scanner_manager,
-            code_generator=None,
+            code_generator=None,  # Will be set lazily
         )
         self.command_handler = DiscordCommandHandler(
             engine=self,
@@ -120,6 +121,7 @@ class AlphaScanEngine:
         self.env_manager = EnvManager(notifier=self.notifier)
         self.strategy_analyzer = StrategyAnalyzer(pivot_threshold=AUTO_PIVOT_THRESHOLD)
         self.git_manager = GitManager(auto_push=AUTO_PUSH_GITHUB)
+
         self._init_scanners()
 
     def _init_scanners(self) -> None:
@@ -398,16 +400,16 @@ class AlphaScanEngine:
             # Save metrics
             metrics = {
                 "cycle": self.state.cycle,
-                "total_keys_found": self.state.total_keys_found,
-                "total_scans": self.state.total_scans,
-                "last_scan_time": self.state.last_scan_time,
-                "last_scan_duration": self.state.last_scan_duration,
-                "discovered_key_types": self.state.discovered_key_types,
+            "total_keys_found": self.state.total_keys_found,
+            "total_scans": self.state.total_scans,
+            "last_scan_time": self.state.last_scan_time,
+            "last_scan_duration": self.state.last_scan_duration,
+            "discovered_key_types": self.state.discovered_key_types,
                 "scanner_stats": self.scanner_manager.get_scanner_stats(),
-                "autonomous_decisions": self.state.autonomous_decisions,
+            "autonomous_decisions": self.state.autonomous_decisions,
                 "keys_by_rank": self.state.keys_by_rank,
                 "verification_stats": self.verifier.get_stats(),
-            }
+        }
             with open(METRICS_FILE, "w") as f:
                 json.dump(metrics, f, indent=2, default=str)
         except Exception as e:
@@ -422,10 +424,10 @@ class AlphaScanEngine:
         """Force an immediate scan cycle (for API endpoint)."""
         self._run_cycle()
         return {
-            "cycle": self.state.cycle,
-            "keys_found": len(self._all_keys),
+                "cycle": self.state.cycle,
+                "keys_found": len(self._all_keys),
             "last_scan_time": self.state.last_scan_time,
-        }
+            }
 
     def get_status(self) -> Dict:
         """Get current engine status."""
@@ -453,6 +455,19 @@ class AlphaScanEngine:
 
     def get_results(self) -> List[Dict]:
         """Get recent scan results summary."""
+        return [
+            {
+                "cycle": self.state.cycle,
+                "keys_found": len(self._all_keys),
+                "timestamp": self.state.last_scan_time,
+                "scanner_stats": self.scanner_manager.get_scanner_stats(),
+            }
+        ]
+
+    def process_command(self, command: str) -> Dict:
+        """Process a Discord command."""
+        return self.command_handler.process_command(command)
+
         return [
             {
                 "cycle": self.state.cycle,
