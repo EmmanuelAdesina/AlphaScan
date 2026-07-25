@@ -15,6 +15,11 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
 ETHERSCAN_API_KEY = os.getenv("ETHERSCAN_API_KEY", "")
 
+# ── Application Settings ──────────────────────────────────────────
+DEBUG = os.getenv("DEBUG", "false").lower() in ("1", "true", "yes")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+QUIET_MODE = os.getenv("QUIET_MODE", "false").lower() in ("1", "true", "yes")
+
 # ── Scan Settings ─────────────────────────────────────────────────
 SCAN_INTERVAL = int(os.getenv("SCAN_INTERVAL", "300"))
 MAX_KEYS_PER_REPORT = int(os.getenv("MAX_KEYS_PER_REPORT", "50"))

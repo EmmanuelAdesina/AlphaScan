@@ -27,7 +27,7 @@ pat = os.getenv("CENSYS_PAT")
 p(f"  PAT: {pat[:8]}...{pat[-4:]} (len={len(pat)})")
 
 try:
-    from alphascan.censys_client import CensysClient, CensysAuthError
+    from censys_client import CensysClient, CensysAuthError
     client = CensysClient(pat=pat)
     auth_ok = client.verify_auth()
     if auth_ok:

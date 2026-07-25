@@ -9,11 +9,11 @@ from typing import List
 
 import requests
 
-from alphascan.config import (
+from config import (
     CENSYS_PAT, CENSYS_QUERY,
     GITHUB_TOKEN, GITHUB_SEARCH_QUERY,
 )
-from alphascan.censys_client import CensysClient
+from censys_client import CensysClient
 
 logger = logging.getLogger(__name__)
 

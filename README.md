@@ -22,7 +22,7 @@ Secret scanning & key intelligence system. Scans public sources for exposed API 
 ```bash
 git clone https://github.com/EmmanuelAdesina/AlphaScan.git
 cd AlphaScan
-pip install -r alphascan/requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Configuration
@@ -30,10 +30,10 @@ pip install -r alphascan/requirements.txt
 Copy `.env.example` to `.env` and fill in your API keys:
 
 ```bash
-cp alphascan/.env.example alphascan/.env
+cp .env.example .env
 ```
 
-Edit `alphascan/.env`:
+Edit `.env`:
 
 ```env
 CENSYS_PAT=your_censys_pat
@@ -50,19 +50,19 @@ MAX_KEYS_PER_REPORT=50
 Run a single scan cycle:
 
 ```bash
-python -m alphascan.main --once --no-report
+python main.py
 ```
 
 Continuous scanning (every 5 minutes):
 
 ```bash
-python -m alphascan.main
+python main.py --quiet
 ```
 
-With Discord reporting:
+Skip API verification (not recommended):
 
 ```bash
-python -m alphascan.main --once
+python main.py --no-verify
 ```
 
 ## Docker
@@ -98,14 +98,16 @@ docker run -e CENSYS_PAT=your_pat \
 ## Architecture
 
 ```
-alphascan/
-  main.py           - Entry point, scan loop
+AlphaScan/
+  main.py           - Entry point, FastAPI server startup
+  config.py         - Environment configuration
   scanners.py       - Censys, GitHub, Pastebin scanners
   parser.py         - Mistral LLM + regex key extraction
   validator.py      - Format, entropy, Etherscan validation
   reporter.py       - Discord webhook reporting
   censys_client.py  - Censys Platform API client (PAT auth)
-  config.py         - Environment configuration
+  utils/            - Utility modules (config_validator, api_verifier)
+  api/              - FastAPI routes
 ```
 
 ## How It Works
@@ -147,20 +149,20 @@ alphascan/
 Run live endpoint verification:
 
 ```bash
-python alphascan/live_test.py
+python live_test.py
 ```
 
 Run diagnostics:
 
 ```bash
-python alphascan/diagnose.py
+python diagnose.py
 ```
 
 ## Troubleshooting
 
 **Censys 401 Unauthorized**: Your PAT is expired. Generate a new one at https://console.censys.io/api
 
-**Mistral module not found**: Install dependencies: `pip install -r alphascan/requirements.txt`
+**Mistral module not found**: Install dependencies: `pip install -r requirements.txt`
 
 **Docker build fails**: Ensure Dockerfile is at the repo root. The build context is `/build`.
 

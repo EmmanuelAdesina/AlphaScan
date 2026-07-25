@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 
-from alphascan.config import ETHERSCAN_API_KEY
+from config import ETHERSCAN_API_KEY
 
 logger = logging.getLogger(__name__)
 

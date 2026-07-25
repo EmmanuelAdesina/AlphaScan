@@ -14,7 +14,9 @@ RUN pip install --no-cache-dir eth-account 2>/dev/null || true
 
 # Copy all application files
 COPY *.py ./
+COPY utils/ ./utils/
+COPY api/ ./api/
 
 # Run scan loop by default (single cycle, no discord report)
-# For continuous mode: python -m alphascan.main
+# For continuous mode: python main.py
 CMD ["python", "main.py", "--once", "--no-report"]

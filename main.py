@@ -12,7 +12,7 @@ import argparse
 import logging
 import sys
 
-from config.settings import DEBUG, LOG_LEVEL, QUIET_MODE
+from config import DEBUG, LOG_LEVEL, QUIET_MODE
 from utils.config_validator import ConfigValidator
 from utils.api_verifier import verify_all_api_keys, should_abort_scan
 
@@ -70,6 +70,18 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         default=False,
         help="Skip pre-scan API key verification (not recommended).",
+    )
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        default=False,
+        help="Run a single scan cycle and exit (no continuous loop).",
+    )
+    parser.add_argument(
+        "--no-report",
+        action="store_true",
+        default=False,
+        help="Skip Discord reporting for this run.",
     )
     return parser.parse_args()
 

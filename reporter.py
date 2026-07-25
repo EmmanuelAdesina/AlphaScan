@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 
 import requests
 
-from alphascan.config import DISCORD_WEBHOOK_URL, MAX_KEYS_PER_REPORT
+from config import DISCORD_WEBHOOK_URL, MAX_KEYS_PER_REPORT
 
 logger = logging.getLogger(__name__)
 

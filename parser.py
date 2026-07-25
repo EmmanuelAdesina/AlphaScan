@@ -9,7 +9,7 @@ import re
 import time
 from typing import Dict, List, Optional
 
-from alphascan.config import MISTRAL_API_KEY
+from config import MISTRAL_API_KEY
 
 logger = logging.getLogger(__name__)
 

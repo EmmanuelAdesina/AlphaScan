@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from alphascan.config import CENSYS_PAT
+from config import CENSYS_PAT
 
 logger = logging.getLogger(__name__)
 

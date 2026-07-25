@@ -1,2 +1,40 @@
+# AlphaScan gitignore
+# Dependencies
+__pycache__/
+*.pyc
+.pytest_cache/
 .env
-*
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and results
+*.log
+diagnose_results.txt
+live_test_results.txt
+*.txt
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (if any accidentally committed)
+*.pem
+*.key
+*.p12
+*.pfx
