@@ -12,7 +12,10 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from config import CENSYS_PAT
+try:
+    from .config import CENSYS_PAT
+except ImportError:
+    from config import CENSYS_PAT
 
 logger = logging.getLogger(__name__)
 
@@ -41,19 +44,64 @@ class CensysClient:
 
     # ── Public helpers ──────────────────────────────────────────────
 
-    def search_hosts(self, query: str, per_page: int = 25) -> List[Dict]:
+    def search_hosts(self, query: str, per_page: int = 25, cursor: Optional[str] = None ) -> Dict[str, Any]:
         """
-        Search Censys hosts index for services matching a query.
-        Returns a list of host result dicts.
+        Search Censys Platform API v3 for hosts.
+
+        Example queries:
+            services.http.response.headers.server: nginx
+            location.country_code: US
+            services.service_name: SSH
+            autonomous_system.name: Google
+
+        Returns:
+            {
+                "hits": [...],
+                "cursor": "..."
+            }
         """
-        url = f"{_BASE_URL}/global/asset/host/{query}"
-        return [self._request("GET", url)]
+
+        url = f"{_BASE_URL}/global/search"
+
+        params = {
+            "query": query,
+            "per_page": per_page,
+        }
+
+        if cursor:
+            params["cursor"] = cursor
+
+        response = self._request(
+            "GET",
+            url,
+            params=params
+        )
+
+        result = response.get("result", {})
+
+        return {
+            "hits": result.get("hits", []),
+            "cursor": result.get("cursor")
+        }
 
     def get_host(self, ip: str) -> Optional[Dict]:
-        """Get detailed information about a specific host."""
+        """
+        Retrieve a single host asset by IP.
+        """
+
         url = f"{_BASE_URL}/global/asset/host/{ip}"
+
         try:
-            return self._request("GET", url)
+            response = self._request(
+                "GET",
+                url
+            )
+
+            return response.get(
+                "result",
+                response
+            )
+
         except CensysNotFound:
             return None
 

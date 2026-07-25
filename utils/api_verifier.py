@@ -25,28 +25,37 @@ class VerificationResult:
         """Check if any critical key failed."""
         return bool(self.abort_reason)
 
-
 def verify_censys(pat: str) -> bool:
     """Verify Censys PAT is valid."""
     if not pat:
         return False
+
     try:
         headers = {
             "Authorization": f"Bearer {pat}",
             "Accept": "application/json",
             "User-Agent": "AlphaScan/1.0",
         }
+
         resp = requests.get(
-            "https://api.platform.censys.io/v3/hosts/search",
+            "https://api.platform.censys.io/v3/global/asset/host/8.8.8.8",
             headers=headers,
-            params={"q": "api_key", "per_page": 1},
             timeout=15,
         )
-        return resp.status_code == 200
-    except Exception as e:
-        logger.debug(f"Censys verification failed: {e}")
+
+        if resp.status_code == 200:
+            return True
+
+        logger.debug(
+            f"Censys verification failed: "
+            f"{resp.status_code} {resp.text[:200]}"
+        )
+
         return False
 
+    except Exception as e:
+        logger.debug(f"Censys verification exception: {e}")
+        return False
 
 def verify_github(token: str) -> bool:
     """Verify GitHub token is valid."""

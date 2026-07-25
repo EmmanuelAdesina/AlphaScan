@@ -6,7 +6,7 @@
   PAT: censys_5...NG6V (len=40)
   Auth: VALID
   Endpoint: WORKING
-  Response keys: ['result']
+  Response keys: ['resource', 'extensions']
 
 [2] GITHUB
   Status: OK - 39,632 results
