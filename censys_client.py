@@ -4,7 +4,9 @@ Uses Personal Access Token (PAT) authentication.
 No legacy API ID/Secret. No basic auth.
 
 Censys Platform API v3 docs:
-    _BASE_URL = "https://api.platform.censys.io/v3"
+_BASE_URL = "https://api.platform.censys.io/v3"
+# Alternative search endpoint path (try /v3/search if /v3/global/search returns 404)
+_SEARCH_PATH = "/global/search"
 """
 import logging
 import time
@@ -61,12 +63,29 @@ class CensysClient:
             }
         """
 
-        url = f"{_BASE_URL}/global/search"
+        url = f"{_BASE_URL}{_SEARCH_PATH}"
 
         params = {
             "query": query,
             "per_page": per_page,
         }
+
+        # Fallback to /search if /global/search returns 404
+        try:
+            response = self._request(
+                "GET",
+                url,
+                params=params,
+            )
+            result = response.get("result", {})
+            return {
+                "hits": result.get("hits", []),
+                "cursor": result.get("cursor"),
+            }
+        except CensysNotFound:
+            if _SEARCH_PATH == "/global/search":
+                return self.search_hosts_fallback(query, per_page, cursor)
+        return {"hits": [], "cursor": None}
 
         if cursor:
             params["cursor"] = cursor
@@ -83,6 +102,16 @@ class CensysClient:
             "hits": result.get("hits", []),
             "cursor": result.get("cursor")
         }
+
+    def search_hosts_fallback(self, query: str, per_page: int = 25, cursor: Optional[str] = None) -> Dict[str, Any]:
+        """Fallback search using /v3/search if /v3/global/search 404s."""
+        url = f"{_BASE_URL}/search"
+        params: Dict[str, Any] = {"query": query, "per_page": per_page}
+        if cursor:
+            params["cursor"] = cursor
+        response = self._request("GET", url, params=params)
+        result = response.get("result", {})
+        return {"hits": result.get("hits", []), "cursor": result.get("cursor")}
 
     def get_host(self, ip: str) -> Optional[Dict]:
         """

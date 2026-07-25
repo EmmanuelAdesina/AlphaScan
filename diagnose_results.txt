@@ -22,5 +22,5 @@
 
 ======================================================================
  DIAGNOSIS COMPLETE
- Results: C:\Dev\AlphaScan\diagnose_results.txt
+ Results: c:\Dev\AlphaScan\diagnose_results.txt
 ======================================================================
