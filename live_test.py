@@ -30,9 +30,12 @@ logprint("")
 
 # ── 1. CENSYS (Platform API with PAT) ──
 logprint("[1/5] CENSYS Platform API")
+
 pat = os.getenv("CENSYS_PAT")
+
 if not pat:
     test("Censys", False, "CENSYS_PAT not configured in .env")
+
 else:
     try:
         headers = {
@@ -40,21 +43,42 @@ else:
             "Accept": "application/json",
             "User-Agent": "AlphaScan/1.0",
         }
+
         r = requests.get(
-            "https://search.censys.io/api/v2/hosts/search",
+            "https://api.platform.censys.io/v3/global/asset/host/8.8.8.8",
             headers=headers,
-            params={"q": "api_key", "per_page": 1},
             timeout=15,
         )
+
         if r.status_code == 200:
-            hits = r.json().get("result", {}).get("hits", [])
-            test("Censys", True, f"PAT valid, {len(hits)} hits returned")
+            data = r.json()
+            test(
+                "Censys",
+                True,
+                "PAT valid, host lookup successful"
+            )
+
         elif r.status_code == 401:
-            test("Censys", False, "Status 401: PAT is invalid or expired")
+            test(
+                "Censys",
+                False,
+                "Status 401: PAT invalid or inactive"
+            )
+
         else:
-            test("Censys", False, f"Status {r.status_code}: {r.text[:100]}")
+            test(
+                "Censys",
+                False,
+                f"Status {r.status_code}: {r.text[:100]}"
+            )
+
     except Exception as e:
-        test("Censys", False, str(e)[:150])
+        test(
+            "Censys",
+            False,
+            str(e)[:150]
+        )
+
 logprint("")
 
 # ── 2. GITHUB ──

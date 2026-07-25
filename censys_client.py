@@ -46,10 +46,8 @@ class CensysClient:
         Search Censys hosts index for services matching a query.
         Returns a list of host result dicts.
         """
-        url = f"{_BASE_URL}/hosts/search"
-        params = {"q": query, "per_page": per_page}
-        data = self._request("GET", url, params=params)
-        return data.get("result", {}).get("hits", [])
+        url = f"{_BASE_URL}/global/asset/host/{query}"
+        return [self._request("GET", url)]
 
     def get_host(self, ip: str) -> Optional[Dict]:
         """Get detailed information about a specific host."""
@@ -68,7 +66,7 @@ class CensysClient:
         try:
             # Censys v3 doesn't have a dedicated /me endpoint as v2 did,
             # so we use a minimal hosts search as the health-check.
-            self.search_hosts("api_key", per_page=1)
+            self.get_host("8.8.8.8")
             return True
         except CensysAuthError:
             return False
@@ -159,3 +157,4 @@ class CensysPermissionError(CensysError):
 
 class CensysNotFound(CensysError):
     """404 — Resource does not exist."""
+

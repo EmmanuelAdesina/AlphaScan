@@ -2,41 +2,25 @@
   AlphaScan - Deep Endpoint Diagnosis
 ======================================================================
 
-[1] CENSYS - 401 Unauthorized
-  API ID:    CNqu59pY
-  Secret:    censys_C...pFSL (len=40)
-  Trying basic auth (requests default)...
-    Status: 401
-    Body:   {"code": 401, "status": "Unauthorized", "error": "You must authenticate with a valid API ID and secret."}
-  Checking /account endpoint...
-    Status: 404
-    Body:   {"code": 404, "status": "Not Found", "error": "/api/v2/account"}
+[1] CENSYS Platform API v3 (PAT auth)
+  PAT: censys_5...NG6V (len=40)
+  Auth: VALID
+  Endpoint: WORKING
+  Response keys: ['result']
 
-[2] GITHUB - Already PASSED (200, 39,912 results)
+[2] GITHUB
+  Status: OK - 39,632 results
 
-[3] GROQ - Library version mismatch
-  API Key:   gsk_ZM1Q...5W5Y (len=56)
-  groq version: 0.4.1
-  Direct REST API call...
-    Status: 400
-    Body:   {"error":{"message":"The model `mixtral-8x7b-32768` has been decommissioned and is no longer supported. Please refer to https://console.groq.com/docs/deprecations for a recommendation on which model to use instead.","type":"invalid_request_error","code":"model_decommissioned"}}
+[3] MISTRAL AI
+  Status: OK - OK
 
+[4] DISCORD
+  Status: 204 OK
 
-[4] DISCORD - Already PASSED (204)
-
-[5] ETHERSCAN - V1 deprecated, need V2
-  API Key:   BHK8FM8X...BH8D (len=34)
-  Trying V2 endpoint (api.etherscan.io/v2/api)...
-    Status: 200
-    Body:   {"status":"1","message":"OK","result":"8774487015807047266412"}
-  Trying V1 with chainid param...
-    Status: 200
-    Body:   {"status":"0","message":"NOTOK","result":"You are using a deprecated V1 endpoint, switch to Etherscan API V2 using https://docs.etherscan.io/v2-migration"}
-  Trying V1 basic (no chainid)...
-    Status: 200
-    Body:   {"status":"0","message":"NOTOK","result":"You are using a deprecated V1 endpoint, switch to Etherscan API V2 using https://docs.etherscan.io/v2-migration"}
+[5] ETHERSCAN
+  Status: OK - 8774.4918 ETH
 
 ======================================================================
-  DIAGNOSIS COMPLETE
-  Full results: c:\Dev\AlphaScan\alphascan\diagnose_results.txt
+ DIAGNOSIS COMPLETE
+ Results: C:\Dev\AlphaScan\diagnose_results.txt
 ======================================================================

@@ -9,18 +9,3 @@
 [3/5] Mistral AI API
 
 [4/5] Discord Webhook
-
-[5/5] Etherscan API (V2)
-
-============================================================
-  RESULTS SUMMARY
-============================================================
-  [FAIL] Censys          FAILED  Status 401: PAT is invalid or expired
-  [PASS] GitHub          OK      Status 200, 39,912 total results
-  [PASS] Mistral         OK      Response: OK
-  [PASS] Discord         OK      Status 204, message delivered
-  [PASS] Etherscan       OK      Status 1, balance 8774.4870 ETH
-
-  Total: 4/5 passed (1 failed)
-
-Full results written to: C:\Dev\AlphaScan\alphascan\live_test_results.txt
