@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: 9 9 11;
+    --card: 17 17 19;
+    --border: 35 35 38;
+    --primary: 59 130 246;
+    --text-primary: 250 250 250;
+    --text-secondary: 161 161 170;
+    --text-muted: 113 113 122;
+  }
+
+  /* Dark mode is default */
+  html {
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
+    --bg: 255 255 255;
+    --card: 249 249 250;
+    --border: 228 228 231;
+    --primary: 59 130 246;
+    --text-primary: 9 9 11;
+    --text-secondary: 113 113 122;
+    --text-muted: 161 161 170;
+  }
+
+  body {
+    @apply bg-bg text-text-primary font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  /* Custom scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--border)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--border));
+    border-radius: 3px;
+  }
+
+  /* Focus states */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-primary/30 text-text-primary;
+  }
+}
+
+@layer components {
+  /* Card base styles */
+  .card {
+    @apply bg-bg-card border border-border rounded-lg shadow-card;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-card-hover hover:border-border-hover transition-all duration-200;
+  }
+
+  /* Badge base */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-2xs font-medium tracking-wide uppercase;
+  }
+
+  /* Subtle glow for critical items */
+  .glow-critical {
+    @apply shadow-glow-critical;
+  }
+
+  .glow-danger {
+    @apply shadow-glow-danger;
+  }
+
+  .glow-success {
+    @apply shadow-glow-success;
+  }
+
+  /* Monospace values */
+  .mono {
+    @apply font-mono text-sm;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply bg-bg-hover rounded animate-pulse;
+  }
+
+  /* Terminal style */
+  .terminal {
+    @apply font-mono text-sm bg-black/50 border border-border rounded-lg;
+  }
+
+  /* Animated counter */
+  .counter {
+    @apply tabular-nums;
+  }
+
+  /* Section header */
+  .section-header {
+    @apply text-text-secondary text-xs font-semibold tracking-wider uppercase;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

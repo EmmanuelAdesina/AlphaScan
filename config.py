@@ -62,6 +62,22 @@ DEDUPLICATE_BY_IP = os.getenv("DEDUPLICATE_BY_IP", "true").lower() in ("1", "tru
 DEDUPLICATE_BY_URL = os.getenv("DEDUPLICATE_BY_URL", "true").lower() in ("1", "true", "yes")
 DEDUPLICATE_BY_CONTENT_HASH = os.getenv("DEDUPLICATE_BY_CONTENT_HASH", "true").lower() in ("1", "true", "yes")
 
+# ── Export Authorization ──────────────────────────────────────────
+# By default, only masked values are exported. Full (unmasked) values
+# are ONLY allowed for user-owned test datasets or explicitly authorized
+# targets. NEVER expose raw secrets via the API without authorization.
+
+EXPORT_AUTH_TOKENS = [
+    t.strip() for t in os.getenv("EXPORT_AUTH_TOKENS", "").split(",") if t.strip()
+]
+AUTHORIZED_EXPORT_TARGETS = [
+    t.strip() for t in os.getenv("AUTHORIZED_EXPORT_TARGETS", "").split(",") if t.strip()
+]
+
+# ── Export Database ────────────────────────────────────────────────
+EXPORTS_DB_PATH = os.getenv("EXPORTS_DB_PATH", "data/findings.db")
+EXPORTS_DIR = os.getenv("EXPORTS_DIR", "exports")
+
 
 def get_censys_query() -> str:
     """Return the next Censys query in rotation."""
