@@ -7,6 +7,7 @@
 import type {
   Secret,
   SecretExportDict,
+  FindingDetail,
   FindingsListResponse,
   FindingsFilters,
   ScanMetrics,
@@ -73,8 +74,8 @@ class ApiClient {
     return this.request<FindingsListResponse>(`/findings?${params.toString()}`);
   }
 
-  async getFinding(id: string): Promise<SecretExportDict | Secret> {
-    return this.request<SecretExportDict>(`/findings/${id}`);
+  async getFinding(id: string): Promise<FindingDetail> {
+    return this.request<FindingDetail>(`/findings/${id}`);
   }
 
   // ── Metrics ───────────────────────────────────────────────────

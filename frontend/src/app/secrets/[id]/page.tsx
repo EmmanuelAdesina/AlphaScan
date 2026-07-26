@@ -15,6 +15,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+export async function generateStaticParams() {
+  return [{ id: '1' }, { id: '2' }];
+}
+
 export default function SecretDetailPage() {
   const params = useParams();
   const id = params?.id as string;
@@ -78,8 +82,8 @@ export default function SecretDetailPage() {
             {/* Title row */}
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-lg font-semibold text-text-primary">{finding.secret_type}</h1>
-              <ConfidenceBadge score={finding.confidence} category={finding.confidence_category} size="lg" />
-              <VerificationBadge status={finding.verified} size="lg" />
+              <ConfidenceBadge score={finding.confidence ?? finding.confidence_score ?? 0} category={finding.confidence_category} size="lg" />
+              <VerificationBadge status={(finding.verified as any) ?? finding.verification_status ?? 'unknown'} size="lg" />
               <ValidationLevelBadge level={finding.validation_level} size="md" />
               {finding.metadata && 'risk_classification' in finding.metadata && (
                 <RiskBadge risk={String(finding.metadata.risk_classification)} />
@@ -171,7 +175,7 @@ export default function SecretDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
-            <DetailRow label="Status" value={<VerificationBadge status={finding.verified} size="md" />} />
+            <DetailRow label="Status" value={<VerificationBadge status={(finding.verified as any) ?? finding.verification_status ?? 'unknown'} size="md" />} />
             <DetailRow label="Validation Level" value={<ValidationLevelBadge level={finding.validation_level} size="md" />} />
             <DetailRow label="Reason" value={finding.verification_reason || 'No verification reason recorded'} />
           </div>
@@ -213,8 +217,8 @@ export default function SecretDetailPage() {
           <h2 className="text-sm font-semibold text-text-primary mb-4">Confidence Breakdown</h2>
 
           <div className="space-y-2">
-            {Array.isArray(finding.metadata.confidence_breakdown?.factors) &&
-              finding.metadata.confidence_breakdown.factors.map((factor: any, i: number) => (
+            {Array.isArray((finding.metadata as any)?.confidence_breakdown?.factors) &&
+              (finding.metadata as any)?.confidence_breakdown?.factors?.map((factor: any, i: number) => (
                 <div key={i} className="flex items-center gap-3 py-1">
                   <span className="text-xs text-text-secondary w-[160px] truncate">{factor.name}</span>
                   <div className="flex-1 h-4 bg-bg-hover rounded overflow-hidden">

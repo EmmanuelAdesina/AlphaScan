@@ -24,7 +24,7 @@ Thumbs.db
 *.log
 diagnose_results.txt
 live_test_results.txt
-*.txt
+!requirements-prod.txt
 
 # Docker
 docker-compose.override.yml

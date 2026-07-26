@@ -77,6 +77,31 @@ export interface SecretExportDict {
   raw_value?: string;
 }
 
+export interface FindingDetail {
+  id: string;
+  source: string;
+  repository: string;
+  file: string;
+  finding_target: string;
+  secret_type: string;
+  secret_family?: string;
+  provider?: string;
+  confidence?: number;
+  confidence_score?: number;
+  confidence_category: ConfidenceCategory;
+  validation_level: ValidationLevel;
+  verified?: VerificationStatus;
+  verification_status?: VerificationStatus;
+  verification_badge?: string;
+  verification_reason?: string;
+  verified_at?: string | null;
+  masked_value: string;
+  raw_value?: string;
+  entropy: number;
+  discovered_at: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface HistoryEntry {
   timestamp: string;
   event: string;
@@ -165,6 +190,8 @@ export interface FindingsFilters {
   date_from?: string;
   date_to?: string;
   provider?: string;
+  sort_by?: string;
+  sort_desc?: boolean;
 }
 
 // ── Export Index ───────────────────────────────────────────────

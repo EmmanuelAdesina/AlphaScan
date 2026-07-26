@@ -67,33 +67,61 @@ python main.py --no-verify
 
 ## Docker
 
-Build the production image:
+### Build (no frontend stage — backend only for stability)
 
 ```bash
-docker build -f Dockerfile -t alphascan:latest .
+docker build -t alphascan:latest .
 ```
 
-Run a single scan:
+> Note: The production image uses `requirements-prod.txt` (no test dependencies) and skips the broken Next.js static-export stage. The backend serves a basic landing page at `/`.
+
+### Configure Environment
+
+Before running, create `.env` from the template:
 
 ```bash
-docker run --rm alphascan:latest
+cp .env.example .env
+# Edit .env with your real API keys
 ```
 
-Run continuously:
+If any required key (`CENSYS_PAT`, `GITHUB_TOKEN`, `MISTRAL_API_KEY`) is missing or invalid, the container will exit with an error like:
 
-```bash
-docker run -d --name alphascan alphascan:latest
+```
+❌ Censys PAT is invalid or expired.
 ```
 
-Pass secrets at runtime:
+### Run
+
+Single scan with `.env` file:
 
 ```bash
-docker run -e CENSYS_PAT=your_pat \
+docker run --rm --env-file .env -p 8000:8000 alphascan:latest
+```
+
+Continuous (with `.env`):
+
+```bash
+docker run -d --name alphascan --env-file .env -p 8000:8000 alphascan:latest
+```
+
+Pass secrets at runtime (alternative to `.env`):
+
+```bash
+docker run --rm \
+  -e CENSYS_PAT=your_pat \
   -e GITHUB_TOKEN=your_token \
   -e MISTRAL_API_KEY=your_key \
   -e DISCORD_WEBHOOK_URL=your_webhook \
   alphascan:latest
 ```
+
+### Docker Compose
+
+```bash
+docker compose up -d
+```
+
+Requires `.env` at the repo root with valid API keys.
 
 ## Architecture
 

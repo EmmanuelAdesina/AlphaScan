@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { SecretCard } from '@/components/secrets/secret-card';
 import { VerificationBadge, ConfidenceBadge, ValidationLevelBadge, SourceBadge } from '@/components/ui/badges';
 import {
+  Key,
   Search, Filter, ChevronLeft, ChevronRight, Download, FileJson, FileText,
   SlidersHorizontal, X,
 } from 'lucide-react';
@@ -147,7 +148,7 @@ export default function SecretsPage() {
             <div>
               <label className="section-header mb-1.5 block">Verification</label>
               <select
-                value={filters.verified || ''}
+                value={String(filters.verified || '')}
                 onChange={(e) => updateFilter('verified', e.target.value)}
                 className="w-full bg-bg-hover border border-border rounded-lg px-3 py-2 text-sm text-text-primary outline-none focus:border-primary"
               >
@@ -245,7 +246,7 @@ export default function SecretsPage() {
 
         {!findingsQuery.isLoading && findings.length === 0 && (
           <div className="py-16 text-center">
-            <KeyRound className="w-8 h-8 text-text-muted mx-auto mb-3" />
+            <Key className="w-8 h-8 text-text-muted mx-auto mb-3" />
             <p className="text-sm text-text-muted">No secrets found matching your filters</p>
             {activeFilterCount > 0 && (
               <button onClick={clearFilters} className="mt-2 text-sm text-primary hover:text-primary-hover">
