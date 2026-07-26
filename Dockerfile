@@ -10,6 +10,21 @@
 # Or use: docker compose up
 # =============================================================================
 
+# ── Stage 1: Frontend builder ───────────────────────────────────────────────
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy dependency manifests first for layer caching
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+# Copy the rest of the frontend source
+COPY frontend/ ./
+
+# Build the Next.js static export (output: 'export' writes to out/)
+RUN npm run build
+
 # ── Stage 2: Production Python image ─────────────────────────────────────────
 FROM python:3.11-slim AS production
 
@@ -38,8 +53,8 @@ COPY censys_client.py daily_export.py ./
 COPY api/ ./api/
 COPY utils/ ./utils/
 
-# Create minimal static frontend (production image serves backend at 8000)
-RUN mkdir -p /app/static && echo '<html><head><title>AlphaScan</title></head><body><h1>AlphaScan v0.5.1</h1><p>Backend running on port 8000.</p></body></html>' > /app/static/index.html
+# Copy the pre-built frontend from the frontend-builder stage
+COPY --from=frontend-builder /app/frontend/out/ ./static/
 
 # Copy entrypoint
 COPY entrypoint.sh .
