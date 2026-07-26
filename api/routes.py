@@ -536,9 +536,25 @@ if STATIC_DIR.is_dir():
         # Prevent matching API paths
         if full_path in ("health", "findings", "metrics", "exports", "export"):
             raise HTTPException(status_code=404, detail="Not found")
-        file_path = STATIC_DIR / full_path
-        if file_path.is_file():
-            return FileResponse(file_path)
+        # `next export` writes routes as e.g. `secrets.html`, rather than
+        # `secrets/index.html`. Resolve that form too; otherwise a request for
+        # /secrets falls through to the dashboard HTML and the findings page
+        # never mounts after a reload or a direct link.
+        requested_path = (STATIC_DIR / full_path).resolve()
+        try:
+            requested_path.relative_to(STATIC_DIR.resolve())
+        except ValueError:
+            raise HTTPException(status_code=404, detail="Not found")
+
+        candidates = (
+            requested_path,
+            requested_path.with_suffix(".html") if not requested_path.suffix else requested_path,
+            requested_path / "index.html",
+        )
+        for file_path in candidates:
+            if file_path.is_file():
+                return FileResponse(file_path)
+
         index = STATIC_DIR / "index.html"
         if index.is_file():
             return FileResponse(index)
