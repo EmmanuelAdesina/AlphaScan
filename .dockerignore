@@ -1,0 +1,59 @@
+# Version control
+.git
+.gitignore
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.egg-info
+.venv
+venv
+env
+
+# Node artifacts
+frontend/node_modules
+frontend/.next
+frontend/out
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Documentation & diagnostics
+DOCUMENTATION.md
+diagnose.py
+diagnose_results.txt
+live_test.py
+live_test_results.txt
+
+# Test suite (not needed in production image)
+tests/
+
+# Data & exports (generated at runtime)
+data/
+exports/
+*.db
+*.log
+
+# Docker files (avoid recursive copy)
+docker-compose*.yml
+.dockerignore
+
+# CI/CD
+.github
+.gitlab-ci.yml

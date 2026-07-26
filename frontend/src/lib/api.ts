@@ -14,7 +14,7 @@ import type {
   HealthResponse,
 } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 
 class ApiClient {
   private baseUrl: string;
