@@ -16,17 +16,30 @@ if [ "$#" -eq 0 ]; then
     # Determine number of workers (default: 2, max: 4 for memory safety)
     WORKERS="${UVICORN_WORKERS:-2}"
 
+    # Uvicorn only accepts lowercase log levels. Deployment providers commonly
+    # inject values such as LOG_LEVEL=INFO, so normalize before passing it on.
+    LOG_LEVEL_RAW="${LOG_LEVEL:-info}"
+    UVICORN_LOG_LEVEL="$(printf '%s' "${LOG_LEVEL_RAW}" | tr '[:upper:]' '[:lower:]')"
+    case "${UVICORN_LOG_LEVEL}" in
+        critical|error|warning|info|debug|trace) ;;
+        warn) UVICORN_LOG_LEVEL="warning" ;;
+        *)
+            echo "  Warning: invalid LOG_LEVEL='${LOG_LEVEL_RAW}', falling back to 'info'"
+            UVICORN_LOG_LEVEL="info"
+            ;;
+    esac
+
     echo "  Mode:     Production Server"
     echo "  Port:     8000"
     echo "  Workers:  ${WORKERS}"
-    echo "  Log:      ${LOG_LEVEL:-INFO}"
+    echo "  Log:      ${LOG_LEVEL_RAW} (uvicorn: ${UVICORN_LOG_LEVEL})"
     echo "═══════════════════════════════════════════════"
 
     exec uvicorn api.routes:app \
         --host 0.0.0.0 \
         --port 8000 \
         --workers "${WORKERS}" \
-        --log-level "${LOG_LEVEL:-info}" \
+        --log-level "${UVICORN_LOG_LEVEL}" \
         --access-log
 else
     # Pass through any custom command (e.g., one-shot scan, tests)
