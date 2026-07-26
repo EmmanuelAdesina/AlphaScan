@@ -11,6 +11,9 @@ Endpoints:
   GET /metrics    — Scan metrics
 
   GET /exports     — Export history index
+
+When running in production (Docker), the API also serves the
+pre-built Next.js frontend from the ./static/ directory.
 """
 from __future__ import annotations
 
@@ -18,11 +21,14 @@ import csv
 import io
 import json
 import logging
+import os
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from models import Secret, ValidationLevel, VerificationStatus, ConfidenceCategory
 from storage import Storage, get_storage, reset_storage
@@ -37,6 +43,11 @@ app = FastAPI(
     description="Enterprise-grade Secret Intelligence Engine with secure findings export, "
                     "paginated access, streaming downloads, and comprehensive metrics.",
 )
+
+# ── Serve pre-built frontend (production) ──────────────────────────
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+if STATIC_DIR.is_dir():
+    logger.info(f"Serving frontend from {STATIC_DIR}")
 
 # ── Storage dependency injection ────────────────────────────────────
 
@@ -515,3 +526,20 @@ def list_exports():
         "exports": history,
         "total_exports": len(history),
     }
+
+
+# ── SPA Fallback (MUST be last — catches all unmatched routes) ──────
+if STATIC_DIR.is_dir():
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        """Serve static files or fall back to index.html for SPA routes."""
+        # Prevent matching API paths
+        if full_path in ("health", "findings", "metrics", "exports", "export"):
+            raise HTTPException(status_code=404, detail="Not found")
+        file_path = STATIC_DIR / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        index = STATIC_DIR / "index.html"
+        if index.is_file():
+            return FileResponse(index)
+        raise HTTPException(status_code=404, detail="Not found")

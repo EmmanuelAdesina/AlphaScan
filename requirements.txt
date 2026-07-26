@@ -1,20 +1,20 @@
 # AlphaScan — Dependencies
-# Core scanning, parsing, validating, reporting, and API.
+# For production deployment, use requirements-prod.txt instead.
 
+# Core application
 requests==2.31.0
 python-dotenv==1.0.0
 mistralai==1.0.0
-colorlog
-fastapi
-uvicorn
-
-# Export API dependencies
+colorlog==6.8.2
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
 starlette>=0.27.0
 
 # Optional: for Ethereum address derivation from private keys
+# Uncomment if needed:
 # eth-account==0.11.0
 
-# Testing
+# Testing & Development (not needed in production)
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
 httpx>=0.24.0
