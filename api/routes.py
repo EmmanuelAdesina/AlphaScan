@@ -175,6 +175,9 @@ def _parse_filters(
 @app.get("/")
 def root():
     """Service status and version info."""
+    index_path = STATIC_DIR / "index.html"
+    if index_path.is_file():
+        return FileResponse(index_path)
     return {
         "status": "ok",
         "service": "AlphaScan",

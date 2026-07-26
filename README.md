@@ -67,13 +67,13 @@ python main.py --no-verify
 
 ## Docker
 
-### Build (no frontend stage — backend only for stability)
+### Build (Multi-stage build serving both Frontend and Backend)
 
 ```bash
 docker build -t alphascan:latest .
 ```
 
-> Note: The production image uses `requirements-prod.txt` (no test dependencies) and skips the broken Next.js static-export stage. The backend serves a basic landing page at `/`.
+> Note: The production image uses `requirements-prod.txt` (no test dependencies) and compiles the Next.js frontend into a static export served directly by FastAPI. The frontend dashboard is available at `/`.
 
 ### Configure Environment
 
