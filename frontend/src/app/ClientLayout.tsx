@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/sidebar';
 import { TopNav } from '@/components/layout/top-nav';
 import { CommandPalette } from '@/components/layout/command-palette';
@@ -18,16 +19,23 @@ const queryClient = new QueryClient({
 });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const router = useRouter();
+  const pathname = usePathname();
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
 
+  // The sidebar previously only changed its highlighted item. It never changed
+  // the route, so clicking “Secrets” left the dashboard mounted and findings
+  // appeared to be missing. Keep the selected section derived from the URL so
+  // browser navigation and direct links stay in sync as well.
+  const activeSection = pathname === '/' ? 'dashboard' : pathname.split('/')[1] || 'dashboard';
+
   const handleNavigate = (section: string) => {
-    setActiveSection(section);
+    router.push(section === 'dashboard' ? '/' : `/${section}`);
   };
 
   const handleSearch = (query: string) => {
-    setActiveSection('search');
+    router.push(query ? `/search?q=${encodeURIComponent(query)}` : '/search');
   };
 
   const handleToggleTheme = () => {
