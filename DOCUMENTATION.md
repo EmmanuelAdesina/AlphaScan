@@ -160,11 +160,31 @@ python main.py --once --no-report
 python main.py --quiet --once --no-report
 ```
 
-### Docker
+### Docker Build
+
+The production image uses a single-stage Python build (no broken Next.js export). It requires:
+
+- `requirements-prod.txt` (production dependencies only)
+- `.env` file with valid API keys (or runtime `-e` variables)
+
+Build:
 
 ```bash
-docker build -f Dockerfile -t alphascan:latest .
-docker run --rm alphascan:latest
+docker build -t alphascan:latest .
+```
+
+> Note: If `CENSYS_PAT`, `GITHUB_TOKEN`, or `MISTRAL_API_KEY` is missing, invalid, or expired, the container will exit with an error like `❌ Censys PAT is invalid or expired.` Ensure `.env` is configured before running.
+
+Run with `.env`:
+
+```bash
+docker run --rm --env-file .env -p 8000:8000 alphascan:latest
+```
+
+Run continuously:
+
+```bash
+docker run -d --name alphascan --env-file .env -p 8000:8000 alphascan:latest
 ```
 
 ---

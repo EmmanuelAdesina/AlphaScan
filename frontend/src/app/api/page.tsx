@@ -2,6 +2,7 @@
 
 import { Code2, ExternalLink, Copy } from 'lucide-react';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const endpoints = [
   { method: 'GET', path: '/', description: 'Service status', auth: false },
