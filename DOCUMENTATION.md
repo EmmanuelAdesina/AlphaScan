@@ -162,10 +162,14 @@ python main.py --quiet --once --no-report
 
 ### Docker Build
 
-The production image uses a single-stage Python build (no broken Next.js export). It requires:
+The production image uses a multi-stage build. The first stage creates a static Next.js export; the second stage runs FastAPI and serves that export from `/static`. Build from the repository root because the Dockerfile copies `frontend/` into the Node builder stage.
+
+It requires:
 
 - `requirements-prod.txt` (production dependencies only)
+- `frontend/package.json` and `frontend/package-lock.json`
 - `.env` file with valid API keys (or runtime `-e` variables)
+- `PORT=8000` for this deployment (the image defaults to 8000)
 
 Build:
 

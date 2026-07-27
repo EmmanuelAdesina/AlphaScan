@@ -1,3 +1,4 @@
+import './globals.css';
 import ClientLayout from './ClientLayout';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
