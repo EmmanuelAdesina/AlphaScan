@@ -73,7 +73,7 @@ python main.py --no-verify
 docker build -t alphascan:latest .
 ```
 
-> Note: The production image uses `requirements-prod.txt` (no test dependencies) and compiles the Next.js frontend into a static export served directly by FastAPI. The frontend dashboard is available at `/`.
+> Note: Build from the repository root. The production image uses `requirements-prod.txt` (no test dependencies), compiles the Next.js frontend into a static export, and serves it through FastAPI. The frontend dashboard is available at `/`. The application listens on `PORT=8000` by default.
 
 ### Configure Environment
 
@@ -192,7 +192,13 @@ python diagnose.py
 
 **Mistral module not found**: Install dependencies: `pip install -r requirements.txt`
 
-**Docker build fails**: Ensure Dockerfile is at the repo root. The build context is `/build`.
+**Docker build fails**: Build from the repository root so the Docker build context contains both `Dockerfile` and `frontend/`:
+
+```bash
+docker build -t alphascan:latest .
+```
+
+**Remote server cannot reach the app**: Set `PORT=8000`, publish `8000:8000`, and ensure the cloud firewall/security group allows inbound TCP port 8000.
 
 ## License
 

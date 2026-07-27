@@ -50,7 +50,9 @@ cp .env.example .env
 docker compose up -d
 ```
 
-Access the application at: **http://localhost:8000**
+Access the application at: **http://localhost:8000** (or `http://your-server:8000` on a remote cloud server).
+
+The container listens on `PORT`, defaulting to `8000`. For this deployment, keep `PORT=8000` in `.env` and expose/map port `8000`.
 
 ### 3. Alternative: Manual Docker Build
 ```bash
@@ -102,11 +104,12 @@ Two named volumes persist data across container restarts:
 
 ### Docker Compose Variables
 
-Edit `docker-compose.yml` to customize:
-- Port mapping (default: `8000:8000`)
-- Worker count
-- Volume names
-- Restart policy
+The default remote-server configuration is port `8000`:
+
+- `PORT` — internal application port; defaults to `8000`
+- `HOST_PORT` — public host port; defaults to `8000`
+
+Edit `docker-compose.yml` or set these variables in `.env` to customize the port mapping. The worker count, volume names, and restart policy can also be changed there.
 
 ---
 

@@ -13,6 +13,10 @@ echo "════════════════════════�
 
 # Default to server mode if no arguments provided
 if [ "$#" -eq 0 ]; then
+    # Respect the cloud platform's assigned port while keeping local Docker
+    # deployments on port 8000 by default.
+    PORT="${PORT:-8000}"
+
     # Determine number of workers (default: 2, max: 4 for memory safety)
     WORKERS="${UVICORN_WORKERS:-2}"
 
@@ -30,14 +34,14 @@ if [ "$#" -eq 0 ]; then
     esac
 
     echo "  Mode:     Production Server"
-    echo "  Port:     8000"
+    echo "  Port:     ${PORT}"
     echo "  Workers:  ${WORKERS}"
     echo "  Log:      ${LOG_LEVEL_RAW} (uvicorn: ${UVICORN_LOG_LEVEL})"
     echo "═══════════════════════════════════════════════"
 
     exec uvicorn api.routes:app \
         --host 0.0.0.0 \
-        --port 8000 \
+        --port "${PORT}" \
         --workers "${WORKERS}" \
         --log-level "${UVICORN_LOG_LEVEL}" \
         --access-log
